@@ -24,3 +24,223 @@
             </nav>
         </div>
     </header>
+
+     <!-- ###################### CONTENIDO ########################## -->
+    <main class="main-content">
+        <!-- @@@ VISTA DE PUNTO DE VENTA @@@ -->
+        <div id="pos-view" class="view active">
+            <div class="pos-container">
+                <div class="menu-section">
+                    <h2>🍕 Menú</h2>
+                    
+                    <!-- Seccion Pizza -->
+                    <div class="product-category">
+                        <h3>Pizzas</h3>
+                        <div class="size-selector">
+                            <button class="size-btn active" data-size="pequeña" data-multiplier="1">Pequeña ($150)</button>
+                            <button class="size-btn" data-size="mediana" data-multiplier="1.5">Mediana ($225)</button>
+                            <button class="size-btn" data-size="familiar" data-multiplier="2">Familiar ($300)</button>
+                        </div>
+                        
+                        <!-- Especialidades -->
+                        <div class="specialty-pizzas">
+                            <h4>Especialidades</h4>
+                            <div class="pizza-grid">
+                                <div class="pizza-card" data-specialty="hawaiana" data-price="180">
+                                    <span>🍍 Hawaiana</span>
+                                    <span class="price">$180</span>
+                                </div>
+                                <div class="pizza-card" data-specialty="carnes-frias" data-price="220">
+                                    <span>🥓 Carnes Frías</span>
+                                    <span class="price">$220</span>
+                                </div>
+                                <div class="pizza-card" data-specialty="italiana" data-price="200">
+                                    <span>🇮🇹 Italiana</span>
+                                    <span class="price">$200</span>
+                                </div>
+                                <div class="pizza-card" data-specialty="mexicana" data-price="210">
+                                    <span>🌶️ Mexicana</span>
+                                    <span class="price">$210</span>
+                                </div>
+                                <div class="pizza-card" data-specialty="vegetariana" data-price="170">
+                                    <span>🥬 Vegetariana</span>
+                                    <span class="price">$170</span>
+                                </div>
+                                <div class="pizza-card" data-specialty="ranchera" data-price="190">
+                                    <span>🤠 Ranchera</span>
+                                    <span class="price">$190</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- EL arma pizzas -->
+                        <div class="custom-pizza">
+                            <h4>Pizza Personalizada</h4>
+                            <button class="build-pizza-btn">🛠️ Crear Pizza Personalizada</button>
+                            <div class="ingredients-panel" style="display: none;">
+                                <h5>Ingredientes (+$15 c/u)</h5>
+                                <div class="ingredients-grid">
+                                    <label class="ingredient-item">
+                                        <input type="checkbox" data-ingredient="peperoni" data-price="15">
+                                        <span>🍕 Peperoni</span>
+                                    </label>
+                                    <label class="ingredient-item">
+                                        <input type="checkbox" data-ingredient="salami" data-price="15">
+                                        <span>🥩 Salami</span>
+                                    </label>
+                                    <label class="ingredient-item">
+                                        <input type="checkbox" data-ingredient="jamon" data-price="15">
+                                        <span>🍖 Jamón</span>
+                                    </label>
+                                    <label class="ingredient-item">
+                                        <input type="checkbox" data-ingredient="chorizo" data-price="15">
+                                        <span>🌭 Chorizo</span>
+                                    </label>
+                                    <label class="ingredient-item">
+                                        <input type="checkbox" data-ingredient="tocino" data-price="15">
+                                        <span>🥓 Tocino</span>
+                                    </label>
+                                    <label class="ingredient-item">
+                                        <input type="checkbox" data-ingredient="pastor" data-price="15">
+                                        <span>🌮 Pastor</span>
+                                    </label>
+                                    <label class="ingredient-item">
+                                        <input type="checkbox" data-ingredient="champiñon" data-price="15">
+                                        <span>🍄 Champiñón</span>
+                                    </label>
+                                    <label class="ingredient-item">
+                                        <input type="checkbox" data-ingredient="piña" data-price="15">
+                                        <span>🍍 Piña</span>
+                                    </label>
+                                    <label class="ingredient-item">
+                                        <input type="checkbox" data-ingredient="chile" data-price="15">
+                                        <span>🌶️ Chile</span>
+                                    </label>
+                                    <label class="ingredient-item">
+                                        <input type="checkbox" data-ingredient="cebolla" data-price="15">
+                                        <span>🧅 Cebolla</span>
+                                    </label>
+                                    <label class="ingredient-item">
+                                        <input type="checkbox" data-ingredient="parmesano" data-price="15">
+                                        <span>🧀 Queso Parmesano</span>
+                                    </label>
+                                </div>
+                                <button class="add-custom-pizza">Agregar Pizza ($<span id="custom-price">150</span>)</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Bebidas -->
+                    <div class="product-category">
+                        <h3>Bebidas</h3>
+                        <div class="drinks-grid">
+                            <div class="drink-card" data-drink="refresco" data-price="25">
+                                <span>🥤 Refresco</span>
+                                <span class="price">$25</span>
+                            </div>
+                            <div class="drink-card" data-drink="agua" data-price="15">
+                                <span>💧 Agua</span>
+                                <span class="price">$15</span>
+                            </div>
+                            <div class="drink-card" data-drink="horchata" data-price="30">
+                                <span>🥛 Horchata</span>
+                                <span class="price">$30</span>
+                            </div>
+                            <div class="drink-card" data-drink="jugo" data-price="35">
+                                <span>🧃 Jugo</span>
+                                <span class="price">$35</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- El carrito (donde se acumulan los productos de tu orden) -->
+                <div class="cart-section">
+                    <h2>🛒 Carrito</h2>
+                    <div class="cart-items" id="cart-items">
+                        <p class="empty-cart">El carrito está vacío</p>
+                    </div>
+                    <div class="cart-total">
+                        <h3>Total: $<span id="cart-total">0</span></h3>
+                    </div>
+                    <div class="customer-info">
+                        <input type="text" id="customer-name" placeholder="Nombre del cliente" required>
+                        <button class="place-order-btn" id="place-order">🚀 Realizar Pedido</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- @@@ VISTA DE PEDIDO A DOMICILIO @@@ -->
+        <div id="delivery-view" class="view">
+            <div class="delivery-container">
+                <div class="delivery-form">
+                    <h2>🚚 Pedido a Domicilio</h2>
+                    <div class="customer-details">
+                        <h3>Datos del Cliente</h3>
+                        <input type="text" id="delivery-name" placeholder="Nombre completo" required>
+                        <input type="tel" id="delivery-phone" placeholder="Teléfono" required>
+                        <textarea id="delivery-address" placeholder="Dirección completa" required></textarea>
+                    </div>
+                </div>
+                <!-- mismo menu (FALTA PONER LO MISMO QUE EN PUNTO DE VENTE) -->
+                <div class="menu-section">
+                    <h3>Selecciona tu pedido</h3>
+                    <p>Usa el mismo menú que en punto de venta para seleccionar tus productos</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- @@@ VISTA DEL INVENTARIO @@@ -->
+        <div id="inventory-view" class="view">
+            <div class="inventory-container">
+                <h2>📦 Control de Almacén</h2>
+                <div class="inventory-categories">
+                    <div class="inventory-section">
+                        <h3>🍕 Ingredientes</h3>
+                        <div class="inventory-grid" id="ingredients-inventory">
+                            <!-- JavaScript -->
+                        </div>
+                    </div>
+                    <div class="inventory-section">
+                        <h3>🥤 Bebidas</h3>
+                        <div class="inventory-grid" id="drinks-inventory">
+                            <!-- JavaScript -->
+                        </div>
+                    </div>
+                    <div class="inventory-section">
+                        <h3>📦 Desechables</h3>
+                        <div class="inventory-grid" id="disposables-inventory">
+                            <!-- JavaScript -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- @@@ VISTA DE COLA DEL COMANDERO @@@ -->
+        <div id="orders-view" class="view">
+            <div class="orders-container">
+                <h2>👨‍🍳 Cola de Comandero</h2>
+                <div class="orders-sections">
+                    <div class="orders-column">
+                        <h3>🏪 Pedidos en Local</h3>
+                        <div class="orders-list" id="pos-orders">
+                            <!-- JavaScript -->
+                        </div>
+                    </div>
+                    <div class="orders-column">
+                        <h3>🚚 Pedidos a Domicilio</h3>
+                        <div class="orders-list" id="delivery-orders">
+                            <!-- JavaScript -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script src="./script.js"></script>
+</body>
+
+</html>
