@@ -79,3 +79,309 @@ body {
     color: var(--primary-blue);
     border-color: var(--white);
 }
+/* PARA EL CONTENIDO PRINCIPAL */
+.main-content {
+    max-width: 1200px;
+    margin: 2rem auto;
+    padding: 0 2rem;
+}
+
+.view {
+    display: none;
+    animation: fadeIn 0.5s ease-in;
+}
+
+.view.active {
+    display: block;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+/* ESTILOS DEL PUNTO DE VENTA ######################## */
+.pos-container {
+    display: grid;
+    grid-template-columns: 2fr 1fr;
+    gap: 2rem;
+    min-height: 70vh;
+}
+
+.menu-section {
+    background: var(--white);
+    padding: 2rem;
+    border-radius: 15px;
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+}
+
+.menu-section h2 {
+    color: var(--primary-blue);
+    margin-bottom: 1.5rem;
+    font-size: 2rem;
+    text-align: center;
+}
+
+.product-category {
+    margin-bottom: 2rem;
+}
+
+.product-category h3 {
+    color: var(--primary-green);
+    margin-bottom: 1rem;
+    font-size: 1.5rem;
+    border-bottom: 2px solid var(--light-green);
+    padding-bottom: 0.5rem;
+}
+
+/* Tamaños */
+.size-selector {
+    display: flex;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+    justify-content: center;
+}
+
+.size-btn {
+    background: var(--light-blue);
+    color: var(--primary-blue);
+    border: 2px solid var(--primary-blue);
+    padding: 0.75rem 1.5rem;
+    border-radius: 25px;
+    cursor: pointer;
+    font-weight: 600;
+    transition: all 0.3s ease;
+}
+
+.size-btn:hover {
+    background: var(--primary-blue);
+    color: var(--white);
+    transform: scale(1.05);
+}
+
+.size-btn.active {
+    background: var(--primary-blue);
+    color: var(--white);
+}
+
+/* Tarjetas de las pizzas */
+.pizza-grid, .drinks-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+}
+
+.pizza-card, .drink-card {
+    background: linear-gradient(135deg, var(--light-orange), var(--light-green));
+    padding: 1.5rem;
+    border-radius: 15px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    border: 2px solid transparent;
+}
+
+.pizza-card:hover, .drink-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+    border-color: var(--primary-orange);
+}
+
+.pizza-card span, .drink-card span {
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+}
+
+.price {
+    color: var(--primary-orange);
+    font-size: 1.2rem;
+    font-weight: bold;
+}
+
+/* Para el construye piizas */
+.custom-pizza {
+    background: var(--light-blue);
+    padding: 1.5rem;
+    border-radius: 15px;
+    margin-top: 1rem;
+}
+
+.build-pizza-btn {
+    background: var(--primary-green);
+    color: var(--white);
+    border: none;
+    padding: 1rem 2rem;
+    border-radius: 25px;
+    cursor: pointer;
+    font-weight: 600;
+    font-size: 1.1rem;
+    transition: all 0.3s ease;
+    width: 100%;
+}
+
+.build-pizza-btn:hover {
+    background: #15803d;
+    transform: scale(1.02);
+}
+
+.ingredients-panel {
+    margin-top: 1rem;
+}
+
+.ingredients-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 0.5rem;
+    margin: 1rem 0;
+}
+
+.ingredient-item {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem;
+    background: var(--white);
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.ingredient-item:hover {
+    background: var(--light-green);
+}
+
+.ingredient-item input[type="checkbox"] {
+    accent-color: var(--primary-green);
+}
+
+.add-custom-pizza {
+    background: var(--primary-orange);
+    color: var(--white);
+    border: none;
+    padding: 1rem 2rem;
+    border-radius: 25px;
+    cursor: pointer;
+    font-weight: 600;
+    width: 100%;
+    margin-top: 1rem;
+}
+
+/* Carrito */
+.cart-section {
+    background: var(--white);
+    padding: 2rem;
+    border-radius: 15px;
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+    height: fit-content;
+    position: sticky;
+    top: 120px;
+}
+
+.cart-section h2 {
+    color: var(--primary-orange);
+    margin-bottom: 1.5rem;
+    text-align: center;
+}
+
+.cart-items {
+    max-height: 300px;
+    overflow-y: auto;
+    margin-bottom: 1rem;
+}
+
+.cart-item {
+    background: var(--gray-100);
+    padding: 1rem;
+    border-radius: 10px;
+    margin-bottom: 0.5rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.cart-item-info {
+    flex: 1;
+}
+
+.cart-item-name {
+    font-weight: 600;
+    color: var(--gray-800);
+}
+
+.cart-item-details {
+    font-size: 0.9rem;
+    color: var(--gray-600);
+}
+
+.cart-item-price {
+    font-weight: bold;
+    color: var(--primary-orange);
+}
+
+.remove-item {
+    background: #ef4444;
+    color: var(--white);
+    border: none;
+    padding: 0.25rem 0.5rem;
+    border-radius: 5px;
+    cursor: pointer;
+    margin-left: 0.5rem;
+}
+
+.empty-cart {
+    text-align: center;
+    color: var(--gray-600);
+    font-style: italic;
+    padding: 2rem;
+}
+
+.cart-total {
+    border-top: 2px solid var(--gray-200);
+    padding-top: 1rem;
+    margin-bottom: 1rem;
+}
+
+.cart-total h3 {
+    text-align: center;
+    color: var(--primary-green);
+    font-size: 1.5rem;
+}
+
+.customer-info {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.customer-info input {
+    padding: 1rem;
+    border: 2px solid var(--gray-200);
+    border-radius: 10px;
+    font-size: 1rem;
+}
+
+.customer-info input:focus {
+    outline: none;
+    border-color: var(--primary-blue);
+}
+
+.place-order-btn {
+    background: linear-gradient(135deg, var(--primary-green), var(--primary-blue));
+    color: var(--white);
+    border: none;
+    padding: 1rem 2rem;
+    border-radius: 25px;
+    cursor: pointer;
+    font-weight: 600;
+    font-size: 1.1rem;
+    transition: all 0.3s ease;
+}
+
+.place-order-btn:hover {
+    transform: scale(1.02);
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+}

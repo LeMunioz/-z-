@@ -50,6 +50,85 @@ class PizzeriaApp {
             }
         };
     }//FIN DE initializeInventory
+
+    //TODAS LAS INTERACCIONES ED BOTONES Y FORMULARIOS
+    setupEventListeners() {
+        // NAVEGACION ENTRE VISTAS
+        document.querySelectorAll('.nav-btn').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                this.switchView(e.target.dataset.view);
+            });
+        });
     
+        // Tamano de pizza
+        document.querySelectorAll('.size-btn').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                this.selectSize(e.target);
+            });
+        });
+
+        // Especialidades de pizza
+        document.querySelectorAll('.pizza-card').forEach(card => {
+            card.addEventListener('click', (e) => {
+                this.addSpecialtyPizza(e.currentTarget);
+            });
+        });
+
+        // Bebidas
+        document.querySelectorAll('.drink-card').forEach(card => {
+            card.addEventListener('click', (e) => {
+                this.addDrink(e.currentTarget);
+            });
+        });
+
+        // Construye pizza
+        document.querySelector('.build-pizza-btn').addEventListener('click', () => {
+            this.toggleCustomPizzaPanel();
+        });
+
+        // Checkboxes de ingredientes
+        document.querySelectorAll('.ingredient-item input').forEach(checkbox => {
+            checkbox.addEventListener('change', () => {
+                this.updateCustomPizzaPrice();
+            });
+        });
+
+        // Anadir la pizza construida al carrito
+        document.querySelector('.add-custom-pizza').addEventListener('click', () => {
+            this.addCustomPizza();
+        });
+
+        // Poner la orden
+        document.getElementById('place-order').addEventListener('click', () => {
+            this.placeOrder();
+        });
+
+        // Entregar orden (utilizado en la vista de ordenes)
+        this.setupDeliveryView();
+
+    }  
     
+    //PARA CAMBIAR DE VISTA
+    switchView(viewName) {
+        // actualizar navegacion
+        document.querySelectorAll('.nav-btn').forEach(btn => {
+            btn.classList.remove('active');
+        });
+        document.querySelector(`[data-view="${viewName}"]`).classList.add('active');
+
+        // Mover a nueva vista
+        document.querySelectorAll('.view').forEach(view => {
+            view.classList.remove('active');
+        });
+        document.getElementById(`${viewName}-view`).classList.add('active');
+
+        this.currentView = viewName;
+
+        // Jalar datos si es necesario en lo del almacen
+        if (viewName === 'inventory') {
+            this.loadInventory();
+        } else if (viewName === 'orders') {
+            this.loadOrders();
+        }
+    }
 }//FIN DE pizzeriaApp
