@@ -385,3 +385,290 @@ body {
     transform: scale(1.02);
     box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
 }
+
+/* PARA LA VISTA DE LOS ENVIOS ###############################333 */
+.delivery-container {
+    background: var(--white);
+    padding: 2rem;
+    border-radius: 15px;
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+}
+
+.delivery-form h2 {
+    color: var(--primary-blue);
+    margin-bottom: 2rem;
+    text-align: center;
+}
+
+.customer-details {
+    background: var(--light-blue);
+    padding: 2rem;
+    border-radius: 15px;
+    margin-bottom: 2rem;
+}
+
+.customer-details h3 {
+    color: var(--primary-green);
+    margin-bottom: 1rem;
+}
+
+.customer-details input,
+.customer-details textarea {
+    width: 100%;
+    padding: 1rem;
+    margin-bottom: 1rem;
+    border: 2px solid var(--gray-200);
+    border-radius: 10px;
+    font-size: 1rem;
+}
+
+.customer-details textarea {
+    height: 100px;
+    resize: vertical;
+}
+
+/* PARA LA VISTA DEL ALMACEN ########################################3 */
+.inventory-container {
+    background: var(--white);
+    padding: 2rem;
+    border-radius: 15px;
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+}
+
+.inventory-container h2 {
+    color: var(--primary-blue);
+    margin-bottom: 2rem;
+    text-align: center;
+}
+
+.inventory-section {
+    margin-bottom: 2rem;
+}
+
+.inventory-section h3 {
+    color: var(--primary-green);
+    margin-bottom: 1rem;
+    border-bottom: 2px solid var(--light-green);
+    padding-bottom: 0.5rem;
+}
+
+.inventory-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 1rem;
+}
+
+.inventory-item {
+    background: var(--light-orange);
+    padding: 1.5rem;
+    border-radius: 15px;
+    text-align: center;
+    border: 2px solid transparent;
+    transition: all 0.3s ease;
+}
+
+.inventory-item:hover {
+    border-color: var(--primary-orange);
+    transform: translateY(-2px);
+}
+
+.inventory-item-name {
+    font-weight: 600;
+    margin-bottom: 1rem;
+    color: var(--gray-800);
+}
+
+.inventory-quantity {
+    font-size: 2rem;
+    font-weight: bold;
+    color: var(--primary-orange);
+    margin-bottom: 1rem;
+}
+
+.quantity-controls {
+    display: flex;
+    justify-content: center;
+    gap: 1rem;
+}
+
+.quantity-btn {
+    background: var(--primary-blue);
+    color: var(--white);
+    border: none;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    cursor: pointer;
+    font-size: 1.2rem;
+    font-weight: bold;
+    transition: all 0.3s ease;
+}
+
+.quantity-btn:hover {
+    background: #1d4ed8;
+    transform: scale(1.1);
+}
+
+/* PARA LA VISTA DE LAS ORDENES ############################################3 */
+.orders-container {
+    background: var(--white);
+    padding: 2rem;
+    border-radius: 15px;
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+}
+
+.orders-container h2 {
+    color: var(--primary-blue);
+    margin-bottom: 2rem;
+    text-align: center;
+}
+
+.orders-sections {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 2rem;
+}
+
+.orders-column h3 {
+    color: var(--primary-green);
+    margin-bottom: 1rem;
+    text-align: center;
+    padding: 1rem;
+    background: var(--light-green);
+    border-radius: 10px;
+}
+
+.orders-list {
+    max-height: 500px;
+    overflow-y: auto;
+}
+
+.order-card {
+    background: var(--light-blue);
+    padding: 1.5rem;
+    border-radius: 15px;
+    margin-bottom: 1rem;
+    border-left: 5px solid var(--primary-orange);
+}
+
+.order-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+}
+
+.order-id {
+    font-weight: bold;
+    color: var(--primary-blue);
+}
+
+.order-time {
+    color: var(--gray-600);
+    font-size: 0.9rem;
+}
+
+.order-customer {
+    font-weight: 600;
+    color: var(--gray-800);
+    margin-bottom: 0.5rem;
+}
+
+.order-items {
+    background: var(--white);
+    padding: 1rem;
+    border-radius: 10px;
+    margin-bottom: 1rem;
+}
+
+.order-item {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 0.5rem;
+}
+
+.order-total {
+    font-weight: bold;
+    color: var(--primary-green);
+    text-align: right;
+    margin-bottom: 1rem;
+}
+
+.complete-order-btn {
+    background: var(--primary-green);
+    color: var(--white);
+    border: none;
+    padding: 0.75rem 1.5rem;
+    border-radius: 25px;
+    cursor: pointer;
+    font-weight: 600;
+    width: 100%;
+    transition: all 0.3s ease;
+}
+
+.complete-order-btn:hover {
+    background: #15803d;
+    transform: scale(1.02);
+}
+
+/* Responsivo */
+@media (max-width: 768px) {
+    .nav-container {
+        flex-direction: column;
+        gap: 1rem;
+    }
+    
+    .nav-menu {
+        flex-wrap: wrap;
+        justify-content: center;
+    }
+    
+    .pos-container {
+        grid-template-columns: 1fr;
+    }
+    
+    .orders-sections {
+        grid-template-columns: 1fr;
+    }
+    
+    .pizza-grid, .drinks-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .ingredients-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* utilidades y clases */
+.text-center { text-align: center; }
+.mb-1 { margin-bottom: 1rem; }
+.mb-2 { margin-bottom: 2rem; }
+.p-1 { padding: 1rem; }
+.p-2 { padding: 2rem; }
+
+/* Cagando, exito y fallido  */
+.loading {
+    opacity: 0.6;
+    pointer-events: none;
+}
+
+.success-message {
+    background: var(--light-green);
+    color: var(--primary-green);
+    padding: 1rem;
+    border-radius: 10px;
+    text-align: center;
+    margin: 1rem 0;
+    border: 2px solid var(--primary-green);
+}
+
+.error-message {
+    background: #fef2f2;
+    color: #dc2626;
+    padding: 1rem;
+    border-radius: 10px;
+    text-align: center;
+    margin: 1rem 0;
+    border: 2px solid #dc2626;
+}
