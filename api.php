@@ -1,5 +1,20 @@
 <?php
 
+/*
+    API para la pizzería
+    Permite gestionar pedidos, inventario, productos y estadísticas.
+    Usa PHP y MySQL (PDO).
+    QUE HAY Y PARA QUE SIRVE:
+        Encabezados iniciales (CORS y JSON): permiten que la API responda en JSON y acepte peticiones desde cualquier origen.
+        Conexión a la base de datos: se conecta a MySQL usando PDO. (IMPORTANTE: CAMBIAR USUARIO Y CONTRASEÑA AL IMPLEMENTAR)
+        Ruteo (Router): analiza la URL y dirige la petición al controlador correcto (orders, inventory, products, stats).
+        Manejo de recursos (endpoints):
+            Orders (Pedidos): crear, leer, actualizar y borrar pedidos.
+            Inventory (Inventario): consultar y actualizar ingredientes/stock.
+            Products (Productos): obtener lista de productos ofrecidos.
+            Stats (Estadísticas): obtener métricas del día, pedidos pendientes y bajo stock.
+*/
+
 // Configuración de cabeceras HTTP
 header('Content-Type: application/json'); // Todas las respuestas serán JSON
 header('Access-Control-Allow-Origin: *'); // Permitir acceso desde cualquier origen
@@ -16,6 +31,7 @@ CONFIGURACION Y CONEXION A LA BASE DE DATOS
 //  =========================================  */
 $host = 'localhost';
 $dbname = 'pizzeria_db';
+//CAMBIE USUARIO Y CONTRASEÑA AL IMPLEMENTAR
 $username = 'root'; 
 $password = '3312';     
 try {
