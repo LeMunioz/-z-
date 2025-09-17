@@ -1,7 +1,7 @@
 // script principal JavaScript
+//INICIALIZACION DE LA APP y DE LAS VARIABLES GLOBALES
 
 class PizzeriaApp {
-    //INICIALIZACION DE LA APP y DE LAS VARIABLES GLOBALES
     constructor() {
         this.cart = [];
         this.currentSize = 'pequeña';
@@ -49,8 +49,9 @@ class PizzeriaApp {
                 'bolsas': { name: '🛍️ Bolsas', quantity: 80 }
             }
         };
-    }//FIN DE initializeInventory
+    }
 
+    
     setupEventListeners() {
         // NAVEGACION ENTRE VISTAS
         document.querySelectorAll('.nav-btn').forEach(btn => {
@@ -58,74 +59,53 @@ class PizzeriaApp {
                 this.switchView(e.target.dataset.view);
             });
         });
-
-    //PARA CAMBIAR DE VISTA 
-    switchView(viewName) {
-        // actualizar navegacion
-        document.querySelectorAll('.nav-btn').forEach(btn => {
-            btn.classList.remove('active');
-        });
-        document.querySelector(`[data-view="${viewName}"]`).classList.add('active');
-
-        // Mover a nueva vista
-        document.querySelectorAll('.view').forEach(view => {
-            view.classList.remove('active');
-        });
-        document.getElementById(`${viewName}-view`).classList.add('active');
-
-        this.currentView = viewName;
-
-        // Jalar datos si es necesario en lo del almacen
-        if (viewName === 'inventory') {
-            this.loadInventory();
-        } else if (viewName === 'orders') {
-            this.loadOrders();
-        }
-    }
-    
-    //================================
-    //FUNCIONES DE PARA ORDENAR
-    //================================    
-        // Tamano de pizza
+    /*
+    FUNCIONES PARA MANEJAR LAS ORDENES Y EL CARRITO
+    */
+        // escoger tamano -> punto de venta
         document.querySelectorAll('.size-btn').forEach(btn => {
             btn.addEventListener('click', (e) => {
                 this.selectSize(e.target);
             });
         });
-        // Especialidades de pizza
+        // escoger especialidad -> punto de venta
         document.querySelectorAll('.pizza-card').forEach(card => {
             card.addEventListener('click', (e) => {
                 this.addSpecialtyPizza(e.currentTarget);
             });
         });
-        // Bebidas
+        //Bebidas -> punto de venta
         document.querySelectorAll('.drink-card').forEach(card => {
             card.addEventListener('click', (e) => {
                 this.addDrink(e.currentTarget);
             });
         });
-        // Construye pizza
+        // Boton armar pizza personalizada -> punto de venta
         document.querySelector('.build-pizza-btn').addEventListener('click', () => {
             this.toggleCustomPizzaPanel();
         });
-        // Checkboxes de ingredientes
+
+        // checkboxes ingredientes pizza personalizada -> punto de venta
         document.querySelectorAll('.ingredient-item input').forEach(checkbox => {
             checkbox.addEventListener('change', () => {
                 this.updateCustomPizzaPrice();
             });
         });
-        // Anadir la pizza construida al carrito
+
+        // Agregar pizza personalizada al carrito -> punto de venta
         document.querySelector('.add-custom-pizza').addEventListener('click', () => {
             this.addCustomPizza();
         });
-        // Poner la orden
+
+        // Poner orden -> punto de venta y domicilio
         document.getElementById('place-order').addEventListener('click', () => {
             this.placeOrder();
         });
-        // Entregar orden (utilizado en la vista de ordenes)
-        this.setupDeliveryView();
-    }  
 
+        // Configurar vista domicilio
+        this.setupDeliveryView();
+    }
+    // seleccionar tamaño de pizza
     selectSize(sizeBtn) {
         document.querySelectorAll('.size-btn').forEach(btn => {
             btn.classList.remove('active');
@@ -137,7 +117,57 @@ class PizzeriaApp {
         
         this.updateCustomPizzaPrice();
     }
+     // mostrar/ocultar panel pizza personalizada
+    toggleCustomPizzaPanel() {
+        const panel = document.querySelector('.ingredients-panel');
+        const isVisible = panel.style.display !== 'none';
+        panel.style.display = isVisible ? 'none' : 'block';
+        
+        if (!isVisible) {
+            this.updateCustomPizzaPrice();
+        }
+    }
 
+    /*
+    FUNCIONES PARA MANEJAR LAS VISTAS
+    */
+    switchView(viewName) {
+        // Actualizar en botones de navegación
+        document.querySelectorAll('.nav-btn').forEach(btn => {
+            btn.classList.remove('active');
+        });
+        document.querySelector(`[data-view="${viewName}"]`).classList.add('active');
+
+        // cambiar vista activa
+        document.querySelectorAll('.view').forEach(view => {
+            view.classList.remove('active');
+        });
+        document.getElementById(`${viewName}-view`).classList.add('active');
+
+        this.currentView = viewName;
+
+        // cargar datos específicos de la vista (la vista de inventario y la cola del comandero)
+        if (viewName === 'inventory') {
+            this.loadInventory();
+        } else if (viewName === 'orders') {
+            this.loadOrders();
+        }
+    }
+
+    // actualizar precio pizza personalizada
+    updateCustomPizzaPrice() {
+        const basePrice = 150; // Base pizza price
+        const checkedIngredients = document.querySelectorAll('.ingredient-item input:checked');
+        const ingredientsPrice = checkedIngredients.length * 15;
+        const totalPrice = Math.round((basePrice + ingredientsPrice) * this.currentMultiplier);
+        
+        document.getElementById('custom-price').textContent = totalPrice;
+    }
+
+    /*
+    FUNCIONES PARA IR METIENDO AL CARRITO y LAS ORDENES
+    */
+    // agregar pizza de especialidad al carrito
     addSpecialtyPizza(pizzaCard) {
         const specialty = pizzaCard.dataset.specialty;
         const basePrice = parseInt(pizzaCard.dataset.price);
@@ -156,7 +186,7 @@ class PizzeriaApp {
         this.updateCartDisplay();
         this.showSuccessMessage(`Pizza ${specialty} agregada al carrito`);
     }
-
+    // agregar bebida al carrito
     addDrink(drinkCard) {
         const drink = drinkCard.dataset.drink;
         const price = parseInt(drinkCard.dataset.price);
@@ -173,26 +203,7 @@ class PizzeriaApp {
         this.updateCartDisplay();
         this.showSuccessMessage(`${item.name} agregada al carrito`);
     }
-
-    toggleCustomPizzaPanel() {
-        const panel = document.querySelector('.ingredients-panel');
-        const isVisible = panel.style.display !== 'none';
-        panel.style.display = isVisible ? 'none' : 'block';
-        
-        if (!isVisible) {
-            this.updateCustomPizzaPrice();
-        }
-    }
-
-    updateCustomPizzaPrice() {
-        const basePrice = 150; // PRECIO DE LA BASE DE LA PIZZA
-        const checkedIngredients = document.querySelectorAll('.ingredient-item input:checked');
-        const ingredientsPrice = checkedIngredients.length * 15;
-        const totalPrice = Math.round((basePrice + ingredientsPrice) * this.currentMultiplier);
-        
-        document.getElementById('custom-price').textContent = totalPrice;
-    }
-
+    // agregar pizza personalizada al carrito
     addCustomPizza() {
         const checkedIngredients = document.querySelectorAll('.ingredient-item input:checked');
         const ingredients = Array.from(checkedIngredients).map(input => 
@@ -221,14 +232,13 @@ class PizzeriaApp {
         this.cart.push(item);
         this.updateCartDisplay();
         
-        // REsetear panel
+        // reiniciar selección
         checkedIngredients.forEach(input => input.checked = false);
         this.toggleCustomPizzaPanel();
         
         this.showSuccessMessage('Pizza personalizada agregada al carrito');
     }
-
-    // ### FUNCIONES DEL CARRITO ### 
+    // actualizar visual del carrito
     updateCartDisplay() {
         const cartItems = document.getElementById('cart-items');
         const cartTotal = document.getElementById('cart-total');
@@ -238,7 +248,7 @@ class PizzeriaApp {
             cartTotal.textContent = '0';
             return;
         }
-        
+
         cartItems.innerHTML = this.cart.map(item => `
             <div class="cart-item">
                 <div class="cart-item-info">
@@ -253,25 +263,25 @@ class PizzeriaApp {
         const total = this.cart.reduce((sum, item) => sum + item.price, 0);
         cartTotal.textContent = total;
     }
-
+    // quitar item del carrito
     removeFromCart(itemId) {
         this.cart = this.cart.filter(item => item.id !== itemId);
         this.updateCartDisplay();
     }
-
+    // poner orden -> punto de venta y domicilio
     placeOrder() {
         const customerName = document.getElementById('customer-name').value.trim();
-        
+        //obligar a poner nombre
         if (!customerName) {
             this.showErrorMessage('Por favor ingresa el nombre del cliente');
             return;
         }
-        
+        // obligar a tener items en el carrito
         if (this.cart.length === 0) {
             this.showErrorMessage('El carrito está vacío');
             return;
         }
-        
+        // crear objeto orden con la hora actual y los items del carrito
         const order = {
             id: Date.now(),
             customer: customerName,
@@ -282,7 +292,7 @@ class PizzeriaApp {
             status: 'pending'
         };
         
-        // agregar info de entrega si es necesario
+        // agregar info de entrega si es a domicilio
         if (this.currentView === 'delivery') {
             const phone = document.getElementById('delivery-phone').value.trim();
             const address = document.getElementById('delivery-address').value.trim();
@@ -291,7 +301,6 @@ class PizzeriaApp {
                 this.showErrorMessage('Por favor completa todos los datos de entrega');
                 return;
             }
-            
             order.deliveryInfo = {
                 phone: phone,
                 address: address
@@ -314,12 +323,15 @@ class PizzeriaApp {
         
         this.showSuccessMessage(`Pedido #${order.id} realizado exitosamente`);
         
-        // actualizar vista de ordenes si es visible (falta implementar)
+        // actualizar vista de órdenes si está activa
         this.updateInventoryAfterOrder(order);
     }
 
-     setupDeliveryView() {
-        // copiar nombre automaticamente cuando se escribe en el input de nombre del cliente
+    /*
+    FUNCIONES PARA MANEJAR LA VISTA DE DOMICILIO
+    */
+    setupDeliveryView() {
+        // transferir nombre cliente a formulario domicilio [punto de venta -> pedido domicilio]
         const customerNameInput = document.getElementById('customer-name');
         const deliveryNameInput = document.getElementById('delivery-name');
         
@@ -331,16 +343,16 @@ class PizzeriaApp {
             });
         }
     }
-
-    //================================
-    //FUNCIONES DE INVENTARIO
-    //================================
+    // cargar inventario
     loadInventory() {
         this.displayInventorySection('ingredients', 'ingredients-inventory');
         this.displayInventorySection('drinks', 'drinks-inventory');
         this.displayInventorySection('disposables', 'disposables-inventory');
     }
 
+    /*
+    FUNCIONES PARA MANEJAR LA VISTA DE INVENTARIO
+    */
     displayInventorySection(section, containerId) {
         const container = document.getElementById(containerId);
         if (!container) return;
@@ -360,7 +372,7 @@ class PizzeriaApp {
             `;
         }).join('');
     }
-
+    // actualizar inventario
     updateInventory(section, item, change) {
         const currentQuantity = this.inventory[section][item].quantity;
         const newQuantity = Math.max(0, currentQuantity + change);
@@ -373,31 +385,31 @@ class PizzeriaApp {
             this.showErrorMessage(`⚠️ Stock bajo: ${this.inventory[section][item].name} (${newQuantity} restantes)`);
         }
     }
-    // Actualizar inventario despues de hacer una orden para que no se pueda pedir si no hay ingredientes
+    // actualizar inventario despues de una orden
     updateInventoryAfterOrder(order) {
-        order.items.forEach(item => {
+        order.items.forEach(item => { // para cada item en la orden
             if (item.type === 'pizza') {
-                // Reduce pizza ingredients en inventario
-                if (item.ingredients) {
+                // Reduce pizza ingredienets
+                if (item.ingredients) { // pizza personalizada
                     item.ingredients.forEach(ingredient => {
                         const ingredientKey = this.findIngredientKey(ingredient);
-                        if (ingredientKey && this.inventory.ingredients[ingredientKey]) {
+                        if (ingredientKey && this.inventory.ingredients[ingredientKey]) { // verificar si existe el ingrediente
                             this.inventory.ingredients[ingredientKey].quantity = Math.max(0, 
-                                this.inventory.ingredients[ingredientKey].quantity - 1);
+                                this.inventory.ingredients[ingredientKey].quantity - 1); // quitar 1 unidad por ingrediente
                         }
                     });
                 }
-                // Reduce cajas de pizza en inventario
+                // Reduce cajas
                 this.inventory.disposables['cajas-pizza'].quantity = Math.max(0, 
                     this.inventory.disposables['cajas-pizza'].quantity - 1);
             } else if (item.type === 'drink') {
-                // Reduce bebidas en inventario
+                // Reduce chescos
                 const drinkKey = item.drink;
                 if (this.inventory.drinks[drinkKey]) {
                     this.inventory.drinks[drinkKey].quantity = Math.max(0, 
                         this.inventory.drinks[drinkKey].quantity - 1);
                 }
-                // Reducir vasos en inventario
+                // Reduce vasos
                 this.inventory.disposables['vasos'].quantity = Math.max(0, 
                     this.inventory.disposables['vasos'].quantity - 1);
             }
@@ -405,7 +417,7 @@ class PizzeriaApp {
         
         this.saveInventory();
     }
-
+    // encontrar clave del ingrediente en el inventario (se usa en updateInventoryAfterOrder)
     findIngredientKey(ingredientName) {
         for (const [key, value] of Object.entries(this.inventory.ingredients)) {
             if (value.name.includes(ingredientName.replace(/[🍕🥩🍖🌭🥓🌮🍄🍍🌶️🧅🧀]/g, '').trim())) {
@@ -414,7 +426,10 @@ class PizzeriaApp {
         }
         return null;
     }
-
+    
+    /*
+    FUNCIONES PARA MANEJAR LA VISTA DE COLA DEL COMANDERO
+    */
     loadOrders() {
         const posOrders = document.getElementById('pos-orders');
         const deliveryOrders = document.getElementById('delivery-orders');
@@ -431,7 +446,7 @@ class PizzeriaApp {
         deliveryOrders.innerHTML = deliveryOrdersList.length ? deliveryOrdersList.map(order => this.createOrderCard(order)).join('') : 
             '<p class="empty-cart">No hay pedidos a domicilio pendientes</p>';
     }
-    // Crear la tarjeta de cada orden
+    // crear tarjeta de orden -> cola del comandero
     createOrderCard(order) {
         return `
             <div class="order-card">
@@ -461,7 +476,7 @@ class PizzeriaApp {
             </div>
         `;
     }
-
+    // completar orden -> cola del comandero
     completeOrder(orderId) {
         const orderIndex = this.orders.findIndex(order => order.id === orderId);
         if (orderIndex !== -1) {
@@ -472,21 +487,20 @@ class PizzeriaApp {
         }
     }
 
-    //================================
-    // FUNCIONES DE MANEJO DE MENSAJES Y LOCALSTORAGE
-    //================================
-    // MENSAJES DE EXITO Y ERROR
+    // Mensajes de éxito y error
     showSuccessMessage(message) {
         this.showMessage(message, 'success');
     }
+
     showErrorMessage(message) {
         this.showMessage(message, 'error');
     }
+
     showMessage(message, type) {
         const messageDiv = document.createElement('div');
         messageDiv.className = `${type}-message`;
         messageDiv.textContent = message;
-  
+        
         document.body.appendChild(messageDiv);
         
         setTimeout(() => {
@@ -494,10 +508,11 @@ class PizzeriaApp {
         }, 3000);
     }
 
-    // PARA GUARDAR EN EL LOCALSTORAGE -> api.php
+    // almacenamiento local de órdenes e inventario mandar a [api.php]
     saveOrders() {
         localStorage.setItem('pizzeria_orders', JSON.stringify(this.orders));
     }
+
     loadOrdersFromStorage() {
         const saved = localStorage.getItem('pizzeria_orders');
         if (saved) {
@@ -507,21 +522,23 @@ class PizzeriaApp {
             }));
         }
     }
+
     saveInventory() {
-        localStorage.setItem('pizzeria_inventory', JSON.stringify(this.inventory));
+        localStorage.setItem('pizzeria_inventory', JSON.stringify(this.inventory));//guardar inventario en almacenamiento local
     }
+
     loadInventoryFromStorage() {
-        const saved = localStorage.getItem('pizzeria_inventory');
+        const saved = localStorage.getItem('pizzeria_inventory'); //cargar inventario desde almacenamiento local
         if (saved) {
             this.inventory = JSON.parse(saved);
         }
     }
-}//FIN DE pizzeriaApp ##################################################################
+}//FIN DE PIZZERIAAPP ############################################################33
 
-// Inciar la app
+// Inicializar la app
 const app = new PizzeriaApp();
 
-// cargar datos guardados al iniciar
+// cargar datos iniciales desde el almacenamiento local
 document.addEventListener('DOMContentLoaded', () => {
     app.loadOrdersFromStorage();
     app.loadInventoryFromStorage();
