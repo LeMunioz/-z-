@@ -10,7 +10,7 @@
 </head>
 
 <body>
-    <!-- ##### HEADER #### -->
+    <!-- #### HEADER #### -->
     <header class="navbar">
         <div class="nav-container">
             <div class="logo">
@@ -21,7 +21,7 @@
             </nav>
         </div>
     </header>
-    <!-- ##### BODY #### -->
+    <!-- #### BODY ##### -->
     <main class="main-content">
         <div class="delivery-full-view">
             <div class="delivery-layout">
@@ -204,10 +204,10 @@
     <script>
         // Configurar la app para modo delivery
         // Esto es para que el sistema reconozca que está en la vista de delivery
-        document.addEventListener('DOMContentLoaded', () => { // Esperar a que el DOM esté cargado
+        document.addEventListener('DOMContentLoaded', () => { // Esperar a que el DOM esté cargado 
             if (typeof app !== 'undefined') {
-                app.currentView = 'delivery'; 
-                app.isDeliveryPage = true; 
+                app.currentView = 'delivery';
+                app.isDeliveryPage = true;
             }
         });
     </script>

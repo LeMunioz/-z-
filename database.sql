@@ -1,249 +1,271 @@
--- Para XAMPP/MySQL
--- Ejevutar este codigo en phpMyAdmin o en la consola de MySQL
+-- Base de datos para Pizzería πz²α
+-- HECHA PARA CORRER USANDO Xampp. Para usarse favor de correr este script en mysql o phpmyadmin
 
 CREATE DATABASE IF NOT EXISTS pizzeria_db;
 USE pizzeria_db;
 
-
--- ### TABLAS ###
--- TABLA DE PRODUCTOS
-CREATE TABLE IF NOT EXISTS products (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    name VARCHAR(100) NOT NULL,
-    type ENUM('pizza_specialty', 'drink', 'ingredient') NOT NULL,
-    base_price DECIMAL(10, 2) NOT NULL,
-    description TEXT,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-);
--- TABLA DE INVENTARIO
+-- Tabla de inventario
 CREATE TABLE IF NOT EXISTS inventory (
     id INT AUTO_INCREMENT PRIMARY KEY,
-    product_id INT,
-    category ENUM('ingredients', 'drinks', 'disposables') NOT NULL,
-    item_name VARCHAR(100) NOT NULL,
-    quantity INT NOT NULL DEFAULT 0,
-    min_stock INT DEFAULT 5,
-    last_updated TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    FOREIGN KEY (product_id) REFERENCES products(id) ON DELETE SET NULL
-);
--- TABLA DE ORDENES
+    category VARCHAR(50) NOT NULL COMMENT 'ingredients, drinks, disposables',
+    item_key VARCHAR(50) NOT NULL COMMENT 'Clave única del item',
+    name VARCHAR(100) NOT NULL COMMENT 'Nombre mostrado del item',
+    quantity INT NOT NULL DEFAULT 0 COMMENT 'Cantidad disponible',
+    min_stock INT DEFAULT 5 COMMENT 'Stock mínimo para alertas',
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    UNIQUE KEY unique_item (category, item_key),
+    INDEX idx_category (category),
+    INDEX idx_quantity (quantity)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- Tabla de órdenes
 CREATE TABLE IF NOT EXISTS orders (
     id INT AUTO_INCREMENT PRIMARY KEY,
-    customer_name VARCHAR(100) NOT NULL,
-    customer_phone VARCHAR(20),
-    customer_address TEXT,
-    order_type ENUM('pos', 'delivery') NOT NULL,
-    total_amount DECIMAL(10, 2) NOT NULL,
-    status ENUM('pending', 'preparing', 'ready', 'completed', 'cancelled') DEFAULT 'pending',
+    order_id BIGINT NOT NULL UNIQUE COMMENT 'ID único de la orden (timestamp)',
+    customer_name VARCHAR(100) NOT NULL COMMENT 'Nombre del cliente',
+    order_type ENUM('pos', 'delivery') NOT NULL COMMENT 'Tipo de orden: punto de venta o domicilio',
+    total_amount DECIMAL(10,2) NOT NULL COMMENT 'Monto total de la orden',
+    order_items JSON NOT NULL COMMENT 'Items de la orden en formato JSON',
+    delivery_info JSON NULL COMMENT 'Información de entrega (solo para delivery)',
+    comments TEXT NULL COMMENT 'Comentarios adicionales',
+    status ENUM('pending', 'completed', 'cancelled') DEFAULT 'pending' COMMENT 'Estado de la orden',
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    completed_at TIMESTAMP NULL
-);
--- LO QUE SE ORDENA (PIZZA Y BEBIDAS)
-CREATE TABLE IF NOT EXISTS order_items (
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    INDEX idx_order_id (order_id),
+    INDEX idx_status (status),
+    INDEX idx_type (order_type),
+    INDEX idx_created (created_at)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- Tabla de historial de inventario (para auditoría)
+CREATE TABLE IF NOT EXISTS inventory_history (
     id INT AUTO_INCREMENT PRIMARY KEY,
-    order_id INT NOT NULL,
-    product_type ENUM('pizza', 'drink') NOT NULL,
-    product_name VARCHAR(200) NOT NULL,
-    size ENUM('pequeña', 'mediana', 'familiar'),
-    specialty VARCHAR(100),
-    custom_ingredients TEXT,
-    quantity INT DEFAULT 1,
-    unit_price DECIMAL(10, 2) NOT NULL,
-    total_price DECIMAL(10, 2) NOT NULL,
-    FOREIGN KEY (order_id) REFERENCES orders(id) ON DELETE CASCADE
-);
--- TAMAÑOS DE PIZZA
-CREATE TABLE IF NOT EXISTS pizza_sizes (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    size_name ENUM('pequeña', 'mediana', 'familiar') NOT NULL,
-    price_multiplier DECIMAL(3, 2) NOT NULL,
-    base_price DECIMAL(10, 2) NOT NULL
-);
+    item_category VARCHAR(50) NOT NULL,
+    item_key VARCHAR(50) NOT NULL,
+    old_quantity INT NOT NULL,
+    new_quantity INT NOT NULL,
+    change_reason VARCHAR(100) DEFAULT 'manual_update',
+    order_id BIGINT NULL COMMENT 'ID de orden si el cambio fue por una venta',
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    INDEX idx_item (item_category, item_key),
+    INDEX idx_order (order_id),
+    INDEX idx_created (created_at)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
+-- Insertar inventario inicial
+INSERT INTO inventory (category, item_key, name, quantity, min_stock) VALUES
+-- Ingredientes para pizzas
+('ingredients', 'peperoni', '🍕 Peperoni', 50, 10),
+('ingredients', 'salami', '🥩 Salami', 30, 8),
+('ingredients', 'jamon', '🍖 Jamón', 40, 10),
+('ingredients', 'chorizo', '🌭 Chorizo', 25, 8),
+('ingredients', 'tocino', '🥓 Tocino', 35, 10),
+('ingredients', 'pastor', '🌮 Pastor', 20, 5),
+('ingredients', 'champiñon', '🍄 Champiñón', 45, 15),
+('ingredients', 'piña', '🍍 Piña', 30, 10),
+('ingredients', 'chile', '🌶️ Chile', 60, 20),
+('ingredients', 'cebolla', '🧅 Cebolla', 55, 15),
+('ingredients', 'parmesano', '🧀 Queso Parmesano', 25, 8),
 
-
--- ### INSERTANDO DATOS EN LAS TABLAS ###
--- INSERTANDO EN PRODUTOS
-INSERT INTO products (name, type, base_price, description) VALUES
--- Especialidades
-('Hawaiana', 'pizza_specialty', 180.00, 'Pizza con jamón y piña'),
-('Carnes Frías', 'pizza_specialty', 220.00, 'Pizza con peperoni, salami y jamón'),
-('Italiana', 'pizza_specialty', 200.00, 'Pizza con salami, champiñones y parmesano'),
-('Mexicana', 'pizza_specialty', 210.00, 'Pizza con chorizo, chile, cebolla y jamon'),
-('Vegetariana', 'pizza_specialty', 170.00, 'Pizza con champiñones, pimiento y cebolla'),
-('Ranchera', 'pizza_specialty', 190.00, 'Pizza estilo ranchero con pastor, chile y jamon'),
-('Margarita', 'pizza_specialty', 160.00, 'Pizza clásica con tomate, mozzarella, parmessano y albahaca'),
 -- Bebidas
-('Refresco', 'drink', 25.00, 'chescos'),
-('Agua', 'drink', 15.00, 'Agua natural'),
-('Horchata', 'drink', 30.00, 'Agua fresca de arroz'),
-('Jugo', 'drink', 35.00, 'Jugo natural de naranja'),
--- Ingredientes
-('Peperoni', 'ingredient', 15.00, 'Peperoni en rebanadas'),
-('Salami', 'ingredient', 15.00, 'Salami italiano'),
-('Jamón', 'ingredient', 15.00, 'Jamón de pierna'),
-('Chorizo', 'ingredient', 15.00, 'Chorizo mexicano'),
-('Tocino', 'ingredient', 15.00, 'Tocino crujiente'),
-('Pastor', 'ingredient', 15.00, 'Carne al pastor'),
-('Champiñón', 'ingredient', 15.00, 'Champiñones frescos'),
-('Piña', 'ingredient', 15.00, 'Piña en trozos'),
-('Chile', 'ingredient', 15.00, 'Chile jalapeño'),
-('Cebolla', 'ingredient', 15.00, 'Cebolla blanca'),
-('Queso Parmesano', 'ingredient', 15.00, 'Queso parmesano rallado');
+('drinks', 'coca', '🥤 Coca Cola', 100, 20),
+('drinks', 'fanta', '🍊 Fanta', 80, 15),
+('drinks', 'sprite', '🍋 Sprite', 75, 15),
+('drinks', 'manzanita', '🍎 Manzanita', 60, 12),
+('drinks', 'fresca', '🥤 Fresca', 50, 10),
+('drinks', 'agua', '💧 Agua', 150, 30),
+('drinks', 'horchata', '🥛 Horchata', 40, 8),
+('drinks', 'jugo', '🧃 Jugo', 65, 12),
 
--- INSERTANDO EN INVENTARIO
-INSERT INTO inventory (product_id, category, item_name, quantity, min_stock) VALUES
--- Ingredientes
-(9, 'ingredients', 'Peperoni', 50, 10),
-(10, 'ingredients', 'Salami', 30, 5),
-(11, 'ingredients', 'Jamón', 40, 8),
-(12, 'ingredients', 'Chorizo', 25, 5),
-(13, 'ingredients', 'Tocino', 35, 7),
-(14, 'ingredients', 'Pastor', 20, 5),
-(15, 'ingredients', 'Champiñón', 45, 10),
-(16, 'ingredients', 'Piña', 30, 8),
-(17, 'ingredients', 'Chile', 60, 15),
-(18, 'ingredients', 'Cebolla', 55, 12),
-(19, 'ingredients', 'Queso Parmesano', 25, 5),
--- Bebibdas
-(5, 'drinks', 'Refresco', 100, 20),
-(6, 'drinks', 'Agua', 150, 30),
-(7, 'drinks', 'Horchata', 50, 10),
-(8, 'drinks', 'Jugo', 75, 15),
 -- Desechables
-(NULL, 'disposables', 'Platos', 200, 50),
-(NULL, 'disposables', 'Vasos', 150, 30),
-(NULL, 'disposables', 'Servilletas', 500, 100),
-(NULL, 'disposables', 'Cajas de Pizza', 100, 20),
-(NULL, 'disposables', 'Bolsas', 80, 15);
--- INSERTANDO EN TAMAÑOS DE PIZZA
-INSERT INTO pizza_sizes (size_name, price_multiplier, base_price) VALUES
-('pequeña', 1.00, 150.00),
-('mediana', 1.50, 225.00),
-('familiar', 2.00, 300.00);
+('disposables', 'platos', '🍽️ Platos', 200, 50),
+('disposables', 'vasos', '🥤 Vasos', 150, 30),
+('disposables', 'servilletas', '🧻 Servilletas', 500, 100),
+('disposables', 'cajas-pizza', '📦 Cajas de Pizza', 100, 20),
+('disposables', 'bolsas', '🛍️ Bolsas', 80, 15)
 
+ON DUPLICATE KEY UPDATE 
+    quantity = VALUES(quantity),
+    min_stock = VALUES(min_stock);
 
-
--- ### OPTIMIZACIONES ###
--- Create indexes for better performance
-CREATE INDEX idx_orders_status ON orders(status);
-CREATE INDEX idx_orders_type ON orders(order_type);
-CREATE INDEX idx_orders_created ON orders(created_at);
-CREATE INDEX idx_inventory_category ON inventory(category);
-CREATE INDEX idx_products_type ON products(type);
-
--- Create views for easier data access
-CREATE VIEW v_pending_orders AS
-SELECT 
-    o.id,
-    o.customer_name,
-    o.customer_phone,
-    o.customer_address,
-    o.order_type,
-    o.total_amount,
-    o.created_at,
-    GROUP_CONCAT(
-        CONCAT(oi.product_name, ' (', oi.quantity, ')') 
-        SEPARATOR ', '
-    ) as items
-FROM orders o
-LEFT JOIN order_items oi ON o.id = oi.order_id
-WHERE o.status = 'pending'
-GROUP BY o.id
-ORDER BY o.created_at ASC;
-
-CREATE VIEW v_low_stock AS
-SELECT 
-    item_name,
-    quantity,
-    min_stock,
-    category,
-    (quantity - min_stock) as stock_difference
-FROM inventory
-WHERE quantity <= min_stock
-ORDER BY stock_difference ASC;
-
--- Stored procedures for common operations
-
--- Add new order
+-- Trigger para registrar cambios en el inventario
 DELIMITER //
-CREATE PROCEDURE AddOrder(
-    IN p_customer_name VARCHAR(100),
-    IN p_customer_phone VARCHAR(20),
-    IN p_customer_address TEXT,
-    IN p_order_type ENUM('pos', 'delivery'),
-    IN p_total_amount DECIMAL(10, 2),
-    OUT p_order_id INT
-)
-BEGIN
-    INSERT INTO orders (customer_name, customer_phone, customer_address, order_type, total_amount)
-    VALUES (p_customer_name, p_customer_phone, p_customer_address, p_order_type, p_total_amount);
-    
-    SET p_order_id = LAST_INSERT_ID();
-END //
-DELIMITER ;
-
--- Update inventory
-DELIMITER //
-CREATE PROCEDURE UpdateInventory(
-    IN p_item_name VARCHAR(100),
-    IN p_quantity_change INT
-)
-BEGIN
-    UPDATE inventory 
-    SET quantity = GREATEST(0, quantity + p_quantity_change),
-        last_updated = CURRENT_TIMESTAMP
-    WHERE item_name = p_item_name;
-END //
-DELIMITER ;
-
--- Complete order
-DELIMITER //
-CREATE PROCEDURE CompleteOrder(
-    IN p_order_id INT
-)
-BEGIN
-    UPDATE orders 
-    SET status = 'completed', 
-        completed_at = CURRENT_TIMESTAMP 
-    WHERE id = p_order_id;
-END //
-DELIMITER ;
-
--- Triggers for inventory management
-DELIMITER //
-CREATE TRIGGER after_order_insert
-AFTER INSERT ON order_items
+CREATE TRIGGER IF NOT EXISTS inventory_change_log 
+AFTER UPDATE ON inventory
 FOR EACH ROW
 BEGIN
-    -- Reduce pizza box inventory for pizza orders
-    IF NEW.product_type = 'pizza' THEN
-        UPDATE inventory 
-        SET quantity = GREATEST(0, quantity - NEW.quantity)
-        WHERE item_name = 'Cajas de Pizza';
+    IF OLD.quantity != NEW.quantity THEN
+        INSERT INTO inventory_history (item_category, item_key, old_quantity, new_quantity, change_reason)
+        VALUES (NEW.category, NEW.item_key, OLD.quantity, NEW.quantity, 'system_update');
     END IF;
-    
-    -- Reduce cup inventory for drink orders
-    IF NEW.product_type = 'drink' THEN
-        UPDATE inventory 
-        SET quantity = GREATEST(0, quantity - NEW.quantity)
-        WHERE item_name = 'Vasos';
-    END IF;
-END //
+END//
 DELIMITER ;
 
--- Sample data for testing
-INSERT INTO orders (customer_name, customer_phone, customer_address, order_type, total_amount, status) VALUES
-('Juan Pérez', '555-1234', 'Av. Principal 123', 'delivery', 245.00, 'pending'),
-('María García', NULL, NULL, 'pos', 180.00, 'pending'),
-('Carlos López', '555-5678', 'Calle Secundaria 456', 'delivery', 320.00, 'completed');
+-- Vista para órdenes pendientes
+CREATE OR REPLACE VIEW pending_orders AS
+SELECT 
+    order_id,
+    customer_name,
+    order_type,
+    total_amount,
+    order_items,
+    delivery_info,
+    comments,
+    created_at
+FROM orders 
+WHERE status = 'pending' 
+ORDER BY created_at ASC;
 
-INSERT INTO order_items (order_id, product_type, product_name, size, specialty, quantity, unit_price, total_price) VALUES
-(1, 'pizza', 'Pizza Hawaiana', 'mediana', 'hawaiana', 1, 270.00, 270.00),
-(1, 'drink', 'Refresco', NULL, NULL, 1, 25.00, 25.00),
-(2, 'pizza', 'Pizza Personalizada', 'pequeña', NULL, 1, 180.00, 180.00),
-(3, 'pizza', 'Pizza Carnes Frías', 'familiar', 'carnes-frias', 1, 440.00, 440.00);
+-- Vista para inventario bajo
+CREATE OR REPLACE VIEW low_stock_items AS
+SELECT 
+    category,
+    item_key,
+    name,
+    quantity,
+    min_stock,
+    (min_stock - quantity) as deficit
+FROM inventory 
+WHERE quantity <= min_stock
+ORDER BY deficit DESC, category, name;
 
--- Grant permissions (adjust username as needed)
--- GRANT ALL PRIVILEGES ON pizzeria_db.* TO 'pizzeria_user'@'localhost' IDENTIFIED BY 'pizzeria_password';
--- FLUSH PRIVILEGES;
+-- Procedimiento para procesar una orden y actualizar inventario
+DELIMITER //
+CREATE PROCEDURE IF NOT EXISTS ProcessOrder(
+    IN p_order_id BIGINT,
+    IN p_customer_name VARCHAR(100),
+    IN p_order_type VARCHAR(20),
+    IN p_total_amount DECIMAL(10,2),
+    IN p_order_items JSON,
+    IN p_delivery_info JSON,
+    IN p_comments TEXT
+)
+BEGIN
+    DECLARE done INT DEFAULT FALSE;
+    DECLARE item_type VARCHAR(50);
+    DECLARE item_key VARCHAR(50);
+    DECLARE item_quantity INT DEFAULT 1;
+    DECLARE specialty VARCHAR(50);
+    DECLARE ingredients JSON;
+    DECLARE i INT DEFAULT 0;
+    DECLARE items_count INT;
+    
+    DECLARE EXIT HANDLER FOR SQLEXCEPTION
+    BEGIN
+        ROLLBACK;
+        RESIGNAL;
+    END;
+    
+    START TRANSACTION;
+    
+    -- Insertar la orden
+    INSERT INTO orders (order_id, customer_name, order_type, total_amount, order_items, delivery_info, comments, status)
+    VALUES (p_order_id, p_customer_name, p_order_type, p_total_amount, p_order_items, p_delivery_info, p_comments, 'pending');
+    
+    -- Procesar items y actualizar inventario
+    SET items_count = JSON_LENGTH(p_order_items);
+    
+    WHILE i < items_count DO
+        SET item_type = JSON_UNQUOTE(JSON_EXTRACT(p_order_items, CONCAT('$[', i, '].type')));
+        
+        IF item_type = 'pizza' THEN
+            -- Reducir cajas de pizza
+            UPDATE inventory 
+            SET quantity = GREATEST(0, quantity - 1)
+            WHERE category = 'disposables' AND item_key = 'cajas-pizza';
+            
+            -- Si es pizza personalizada, reducir ingredientes
+            SET ingredients = JSON_EXTRACT(p_order_items, CONCAT('$[', i, '].ingredients'));
+            IF ingredients IS NOT NULL THEN
+                -- Procesar ingredientes personalizados
+                SET @j = 0;
+                WHILE @j < JSON_LENGTH(ingredients) DO
+                    SET item_key = JSON_UNQUOTE(JSON_EXTRACT(ingredients, CONCAT('$[', @j, '].key')));
+                    UPDATE inventory 
+                    SET quantity = GREATEST(0, quantity - 1)
+                    WHERE category = 'ingredients' AND item_key = item_key;
+                    SET @j = @j + 1;
+                END WHILE;
+            ELSE
+                -- Procesar especialidades
+                SET specialty = JSON_UNQUOTE(JSON_EXTRACT(p_order_items, CONCAT('$[', i, '].specialty')));
+                CASE specialty
+                    WHEN 'margarita' THEN
+                        UPDATE inventory SET quantity = GREATEST(0, quantity - 1) WHERE category = 'ingredients' AND item_key = 'parmesano';
+                    WHEN 'vegetariana' THEN
+                        UPDATE inventory SET quantity = GREATEST(0, quantity - 1) WHERE category = 'ingredients' AND item_key IN ('champiñon', 'cebolla', 'chile');
+                    WHEN 'hawaiana' THEN
+                        UPDATE inventory SET quantity = GREATEST(0, quantity - 1) WHERE category = 'ingredients' AND item_key IN ('jamon', 'piña');
+                    WHEN 'carnes-frias' THEN
+                        UPDATE inventory SET quantity = GREATEST(0, quantity - 1) WHERE category = 'ingredients' AND item_key IN ('jamon', 'salami', 'tocino');
+                    WHEN 'mexicana' THEN
+                        UPDATE inventory SET quantity = GREATEST(0, quantity - 1) WHERE category = 'ingredients' AND item_key IN ('chorizo', 'chile', 'cebolla');
+                    WHEN 'italiana' THEN
+                        UPDATE inventory SET quantity = GREATEST(0, quantity - 1) WHERE category = 'ingredients' AND item_key IN ('salami', 'parmesano');
+                    WHEN 'ranchera' THEN
+                        UPDATE inventory SET quantity = GREATEST(0, quantity - 1) WHERE category = 'ingredients' AND item_key IN ('tocino', 'cebolla', 'chile');
+                END CASE;
+            END IF;
+            
+        ELSEIF item_type = 'drink' THEN
+            -- Reducir bebida específica
+            SET item_key = JSON_UNQUOTE(JSON_EXTRACT(p_order_items, CONCAT('$[', i, '].drink')));
+            UPDATE inventory 
+            SET quantity = GREATEST(0, quantity - 1)
+            WHERE category = 'drinks' AND item_key = item_key;
+            
+            -- Reducir vasos
+            UPDATE inventory 
+            SET quantity = GREATEST(0, quantity - 1)
+            WHERE category = 'disposables' AND item_key = 'vasos';
+        END IF;
+        
+        SET i = i + 1;
+    END WHILE;
+    
+    COMMIT;
+END//
+DELIMITER ;
+
+-- Función para obtener el estado del inventario
+DELIMITER //
+CREATE FUNCTION IF NOT EXISTS GetInventoryStatus()
+RETURNS JSON
+READS SQL DATA
+DETERMINISTIC
+BEGIN
+    DECLARE result JSON;
+    
+    SELECT JSON_OBJECT(
+        'total_items', COUNT(*),
+        'low_stock_items', SUM(CASE WHEN quantity <= min_stock THEN 1 ELSE 0 END),
+        'out_of_stock_items', SUM(CASE WHEN quantity = 0 THEN 1 ELSE 0 END),
+        'categories', JSON_OBJECT(
+            'ingredients', (SELECT COUNT(*) FROM inventory WHERE category = 'ingredients'),
+            'drinks', (SELECT COUNT(*) FROM inventory WHERE category = 'drinks'),
+            'disposables', (SELECT COUNT(*) FROM inventory WHERE category = 'disposables')
+        )
+    ) INTO result
+    FROM inventory;
+    
+    RETURN result;
+END//
+DELIMITER ;
+
+-- Insertar algunos datos de ejemplo para testing
+INSERT INTO orders (order_id, customer_name, order_type, total_amount, order_items, comments, status) VALUES
+(1631234567890, 'Juan Pérez', 'pos', 285.00, '[{"id":1631234567890,"type":"pizza","name":"Pizza Hawaiana (mediana)","price":255,"size":"mediana","specialty":"hawaiana"},{"id":1631234567891,"type":"drink","name":"🥤 Coca Cola","price":30,"drink":"coca"}]', 'Sin cebolla por favor', 'pending'),
+(1631234567891, 'María García', 'delivery', 420.00, '[{"id":1631234567892,"type":"pizza","name":"Pizza Personalizada (familiar)","price":374,"size":"familiar","ingredients":[{"name":"🍕 Peperoni (+$20)","key":"peperoni","price":20},{"name":"🥓 Tocino (+$24)","key":"tocino","price":24}],"custom":true},{"id":1631234567893,"type":"drink","name":"🍊 Fanta","price":28,"drink":"fanta"},{"id":1631234567894,"type":"drink","name":"💧 Agua","price":15,"drink":"agua"}]', '{"phone":"555-1234","colonia":"Centro","calle":"Av. Principal 123"}', 'Tocar el timbre dos veces', 'pending');
+
+-- Índices adicionales para optimización
+CREATE INDEX idx_inventory_low_stock ON inventory (quantity, min_stock);
+CREATE INDEX idx_orders_customer ON orders (customer_name);
+CREATE INDEX idx_orders_total ON orders (total_amount);
+
+-- Comentarios en las tablas
+ALTER TABLE inventory COMMENT = 'Inventario de ingredientes, bebidas y desechables';
+ALTER TABLE orders COMMENT = 'Órdenes de punto de venta y domicilio';
+ALTER TABLE inventory_history COMMENT = 'Historial de cambios en el inventario para auditoría';
+
+COMMIT;

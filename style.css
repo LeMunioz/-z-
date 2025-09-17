@@ -13,7 +13,11 @@ body {
     color: #333;
 }
 
-/* Header y Navegación */
+/*
+    #######################
+    HEADER Y NAVEGACIÓN
+    #######################
+*/
 .navbar {
     background: rgba(255, 255, 255, 0.95);
     backdrop-filter: blur(10px);
@@ -108,7 +112,11 @@ body {
     text-align: center;
     font-size: 2rem;
 }
-
+/* 
+    #######################
+  APARTADE DE MENU DE PRODUCTOS
+    #######################
+*/
 /* Categorías de Productos */
 .product-category {
     margin-bottom: 3rem;
@@ -314,7 +322,7 @@ body {
     font-size: 1.1rem;
 }
 
-/* Carrito */
+/* ###### CARRITO ###### */
 .cart-section {
     background: rgba(255, 255, 255, 0.95);
     border-radius: 20px;
@@ -448,7 +456,7 @@ body {
     box-shadow: 0 6px 20px rgba(0, 0, 0, 0.2);
 }
 
-/* Vista de Delivery */
+/* ##### VISTA DE delivery ##### */
 .delivery-container {
     background: rgba(255, 255, 255, 0.95);
     border-radius: 20px;
@@ -488,8 +496,7 @@ body {
     box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
 }
 
-
-/* ESTILOS DE PEDIDOS A DOMICILIO */
+/* ###### ESTILOS DE ENVIO PARA LLEVAR ###### */
 .delivery-full-view {
     min-height: 80vh;
 }
@@ -543,8 +550,7 @@ body {
     box-shadow: 0 0 10px rgba(116, 185, 255, 0.3);
 }
 
-
-/* #### VISTA DE INVENTARIO ##### */
+/* ###### VISTA DEL INVENTARIO ###### */
 .inventory-container {
     background: rgba(255, 255, 255, 0.95);
     border-radius: 20px;
@@ -625,8 +631,7 @@ body {
     transform: scale(1.1);
 }
 
-
-/* VISTAS DE ORDENES */
+/* ##### VISTA DE ORDENES ##### */
 .orders-container {
     background: rgba(255, 255, 255, 0.95);
     border-radius: 20px;
@@ -755,8 +760,7 @@ body {
     box-shadow: 0 6px 20px rgba(0, 0, 0, 0.2);
 }
 
-
-/* ##### MENSAJES ##### */
+/* Mensajes */
 .success-message,
 .error-message {
     position: fixed;
