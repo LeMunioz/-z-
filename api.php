@@ -1,5 +1,4 @@
 <?php
-
 /*
     API para la pizzería
     Permite gestionar pedidos, inventario, productos y estadísticas.
@@ -16,312 +15,263 @@
 */
 
 // Configuración de cabeceras HTTP
-header('Content-Type: application/json'); // Todas las respuestas serán JSON
-header('Access-Control-Allow-Origin: *'); // Permitir acceso desde cualquier origen
-header('Access-Control-Allow-Methods: GET, POST, PUT, DELETE, OPTIONS');
-header('Access-Control-Allow-Headers: Content-Type'); // Encabezados aceptados
+header('Content-Type: application/json');
+header('Access-Control-Allow-Origin: *');
+header('Access-Control-Allow-Methods: GET, POST, PUT, DELETE');
+header('Access-Control-Allow-Headers: Content-Type');
 
-// Manejar solicitudes preflight
-if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
-    exit(0);
-}
-
-/*  =========================================  //                                               
-CONFIGURACION Y CONEXION A LA BASE DE DATOS 
-//  =========================================  */
+/*
+    #### CONFIGURACIÓN DE BASE DE DATOS Y CONEXION ####
+*/
 $host = 'localhost';
 $dbname = 'pizzeria_db';
-//CAMBIE USUARIO Y CONTRASEÑA AL IMPLEMENTAR
-$username = 'root'; 
-$password = '3312';     
+$username = 'root';
+$password = '3312'; // Cambiar al implementar
+
 try {
-    $pdo = new PDO("mysql:host=$host;dbname=$dbname", $username, $password); // Crear conexión PDO a MySQL
-    $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);  // Activar errores como excepciones
-} catch (PDOException $e) {
-    http_response_code(500); //ERROR 500 NO CONECTA A LA BASE DE DATOS
-    echo json_encode(['error' => 'Database connection failed: ' . $e->getMessage()]);
+    $pdo = new PDO("mysql:host=$host;dbname=$dbname;charset=utf8", $username, $password);
+    $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+} catch(PDOException $e) {
+    http_response_code(500);
+    echo json_encode(['success' => false, 'message' => 'Error de conexión: ' . $e->getMessage()]);
     exit;
 }
 
-
-/*  =========================================  //                                               
-    ROUTER PRINCIPAL
-    analiza la URL y dirige la petición al controlador correcto (orders, inventory, products, stats).
-//  =========================================  */
-$method = $_SERVER['REQUEST_METHOD']; //detecta el método HTTP (GET, POST, PUT, DELETE)
-$request = $_SERVER['REQUEST_URI'];
-$path = parse_url($request, PHP_URL_PATH);
-$path = str_replace('/api.php', '', $path); // Remueve /api.php de la ruta
-$segments = explode('/', trim($path, '/')); // Divide la ruta en segmentos
-$endpoint = $segments[0] ?? ''; // El primer segmento es el endpoint (orders, inventory, products, stats)
-// Obtener cuerpo de la solicitud para solicitudes POST/PUT
+// Obtener método HTTP y datos
+$method = $_SERVER['REQUEST_METHOD'];
 $input = json_decode(file_get_contents('php://input'), true);
 
-switch ($endpoint) {
-    case 'orders':
-        handleOrders($method, $pdo, $input, $segments);
-        break;
-    case 'inventory':
-        handleInventory($method, $pdo, $input, $segments);
-        break;
-    case 'products':
-        handleProducts($method, $pdo, $input, $segments);
-        break;
-    case 'stats':
-        handleStats($method, $pdo);
-        break;
-    default:
-        http_response_code(404);
-        echo json_encode(['error' => 'Endpoint not found']);
-        break;
+// DETERMINAR ACCION
+$action = '';
+if ($method === 'GET' && isset($_GET['action'])) {
+    $action = $_GET['action'];
+} elseif ($method === 'POST' && isset($input['action'])) {
+    $action = $input['action'];
 }
 
-
-/*  =========================================  //                                               
-    FUNCIONES PARA ORDENES (tabla->orders y order_items)
-//  =========================================  */
-// Maneja las solicitudes relacionadas con pedidos
-function handleOrders($method, $pdo, $input, $segments) { 
-    switch ($method) {
-        case 'GET':
-            if (isset($segments[1])) {
-                // Obtener una orden específico
-                getOrder($pdo, $segments[1]);
-            } else {
-                // Obtener todos las ordenes
-                getAllOrders($pdo);
-            }
+try {
+    switch ($action) {
+        case 'get_inventory':
+            getInventory($pdo);
             break;
-        case 'POST':
-            createOrder($pdo, $input);
-            break;
-        case 'PUT':
-            if (isset($segments[1])) {
-                updateOrder($pdo, $segments[1], $input);
-            }
-            break;
-        case 'DELETE':
-            if (isset($segments[1])) {
-                deleteOrder($pdo, $segments[1]);
-            }
-            break;
-    }
-}
-// Devuelve todos los pedidos con sus items (concatennado en string)
-function getAllOrders($pdo) {
-    try {
-        $stmt = $pdo->query("
-            SELECT o.*, 
-                   GROUP_CONCAT(
-                       CONCAT(oi.product_name, ' (', oi.quantity, ') - $', oi.total_price)
-                       SEPARATOR '; '
-                   ) as items
-            FROM orders o
-            LEFT JOIN order_items oi ON o.id = oi.order_id
-            GROUP BY o.id
-            ORDER BY o.created_at DESC
-        ");
-        $orders = $stmt->fetchAll(PDO::FETCH_ASSOC);
-        echo json_encode($orders);
-    } catch (PDOException $e) {
-        http_response_code(500);
-        echo json_encode(['error' => $e->getMessage()]);
-    }
-}
-// Devuelve un pedido específico con sus items
-function getOrder($pdo, $id) {
-    try {
-        $stmt = $pdo->prepare("SELECT * FROM orders WHERE id = ?");
-        $stmt->execute([$id]);
-        $order = $stmt->fetch(PDO::FETCH_ASSOC);
-        
-        if ($order) {
-            // Obtener items del pedido
-            $stmt = $pdo->prepare("SELECT * FROM order_items WHERE order_id = ?");
-            $stmt->execute([$id]);
-            $order['items'] = $stmt->fetchAll(PDO::FETCH_ASSOC);
-            echo json_encode($order);
-        } else {
-            http_response_code(404);
-            echo json_encode(['error' => 'Order not found']);
-        }
-    } catch (PDOException $e) {
-        http_response_code(500);
-        echo json_encode(['error' => $e->getMessage()]);
-    }
-}
-// Crear una nueva orden con sus items
-function createOrder($pdo, $data) {
-    try {
-        $pdo->beginTransaction();
-        
-        // Insertar en tabla orders
-        $stmt = $pdo->prepare("
-            INSERT INTO orders (customer_name, customer_phone, customer_address, order_type, total_amount)
-            VALUES (?, ?, ?, ?, ?)
-        ");
-        $stmt->execute([
-            $data['customer_name'],
-            $data['customer_phone'] ?? null,
-            $data['customer_address'] ?? null,
-            $data['order_type'],
-            $data['total_amount']
-        ]);
-        
-        $orderId = $pdo->lastInsertId();
-        
-        // Insertar items de la orden
-        if (isset($data['items']) && is_array($data['items'])) {
-            $stmt = $pdo->prepare("
-                INSERT INTO order_items (order_id, product_type, product_name, size, specialty, custom_ingredients, quantity, unit_price, total_price)
-                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
-            ");
             
-            foreach ($data['items'] as $item) {
-                $stmt->execute([
-                    $orderId,
-                    $item['type'],
-                    $item['name'],
-                    $item['size'] ?? null,
-                    $item['specialty'] ?? null,
-                    isset($item['ingredients']) ? implode(', ', $item['ingredients']) : null,
-                    1, // cantidad
-                    $item['price'],
-                    $item['price']
-                ]);
+        case 'update_inventory':
+            updateInventory($pdo, $input['inventory']);
+            break;
+            
+        case 'save_order':
+            saveOrder($pdo, $input['order']);
+            break;
+            
+        case 'get_orders':
+            getOrders($pdo);
+            break;
+            
+        case 'update_order_status':
+            updateOrderStatus($pdo, $input['order_id'], $input['status']);
+            break;
+            
+        case 'init_database':
+            initDatabase($pdo);
+            break;
+            
+        default:
+            http_response_code(400);
+            echo json_encode(['success' => false, 'message' => 'Acción no válida']);
+            break;
+    }
+} catch (Exception $e) {
+    http_response_code(500);
+    echo json_encode(['success' => false, 'message' => 'Error del servidor: ' . $e->getMessage()]);
+}
+
+/* 
+    FUNCIONES DE MANEJO DE INVENTARIO Y PEDIDOS
+*/
+function getInventory($pdo) {
+    $stmt = $pdo->query("SELECT * FROM inventory");
+    $items = $stmt->fetchAll(PDO::FETCH_ASSOC);
+    
+    // Organizar por categorías
+    $inventory = [
+        'ingredients' => [],
+        'drinks' => [],
+        'disposables' => []
+    ];
+    
+    foreach ($items as $item) {
+        $inventory[$item['category']][$item['item_key']] = [
+            'name' => $item['name'],
+            'quantity' => (int)$item['quantity']
+        ];
+    }
+    
+    echo json_encode(['success' => true, 'inventory' => $inventory]);
+}
+
+// Función para actualizar inventario
+function updateInventory($pdo, $inventory) {
+    $pdo->beginTransaction();
+    
+    try {
+        // Limpiar inventario actual
+        $pdo->exec("DELETE FROM inventory");
+        
+        // Insertar nuevo inventario
+        $stmt = $pdo->prepare("INSERT INTO inventory (category, item_key, name, quantity) VALUES (?, ?, ?, ?)");
+        
+        foreach ($inventory as $category => $items) {
+            foreach ($items as $key => $item) {
+                $stmt->execute([$category, $key, $item['name'], $item['quantity']]);
             }
         }
         
         $pdo->commit();
-        echo json_encode(['success' => true, 'order_id' => $orderId]);
-    } catch (PDOException $e) {
-        $pdo->rollBack();
-        http_response_code(500);
-        echo json_encode(['error' => $e->getMessage()]);
+        echo json_encode(['success' => true, 'message' => 'Inventario actualizado']);
+        
+    } catch (Exception $e) {
+        $pdo->rollback();
+        throw $e;
     }
 }
-// Actualizar estado de un pedido
-function updateOrder($pdo, $id, $data) {
-    try {
-        $stmt = $pdo->prepare("UPDATE orders SET status = ? WHERE id = ?");
-        $stmt->execute([$data['status'], $id]);
-        // Si pasa a "completed", registrar fecha de finalización
-        if ($data['status'] === 'completed') {
-            $stmt = $pdo->prepare("UPDATE orders SET completed_at = NOW() WHERE id = ?");
-            $stmt->execute([$id]);
+
+// Función para guardar orden
+function saveOrder($pdo, $order) {
+    $stmt = $pdo->prepare("
+        INSERT INTO orders (order_id, customer_name, order_type, total_amount, order_items, delivery_info, comments, status, created_at) 
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+    ");
+    
+    $deliveryInfo = isset($order['deliveryInfo']) ? json_encode($order['deliveryInfo']) : null;
+    $comments = isset($order['comments']) ? $order['comments'] : null;
+    
+    $stmt->execute([
+        $order['id'],
+        $order['customer'],
+        $order['type'],
+        $order['total'],
+        json_encode($order['items']),
+        $deliveryInfo,
+        $comments,
+        $order['status'],
+        date('Y-m-d H:i:s')
+    ]);
+    
+    echo json_encode(['success' => true, 'message' => 'Orden guardada']);
+}
+
+// Función para obtener órdenes
+function getOrders($pdo) {
+    $stmt = $pdo->query("SELECT * FROM orders WHERE status = 'pending' ORDER BY created_at DESC");
+    $orders = $stmt->fetchAll(PDO::FETCH_ASSOC);
+    
+    // Procesar órdenes para el formato esperado
+    $processedOrders = [];
+    foreach ($orders as $order) {
+        $processedOrder = [
+            'id' => $order['order_id'],
+            'customer' => $order['customer_name'],
+            'type' => $order['order_type'],
+            'total' => (float)$order['total_amount'],
+            'items' => json_decode($order['order_items'], true),
+            'status' => $order['status'],
+            'timestamp' => new DateTime($order['created_at']),
+            'comments' => $order['comments']
+        ];
+        
+        if ($order['delivery_info']) {
+            $processedOrder['deliveryInfo'] = json_decode($order['delivery_info'], true);
         }
         
-        echo json_encode(['success' => true]);
-    } catch (PDOException $e) {
-        http_response_code(500);
-        echo json_encode(['error' => $e->getMessage()]);
+        $processedOrders[] = $processedOrder;
     }
+    
+    echo json_encode(['success' => true, 'orders' => $processedOrders]);
 }
 
-
-/*  =========================================  //                                               
-    FUNCIONES PARA INVENTARIO (tabla->inventory)
-//  =========================================  */
-function handleInventory($method, $pdo, $input, $segments) {
-    switch ($method) {
-        case 'GET':
-            getAllInventory($pdo);
-            break;
-        case 'PUT':
-            if (isset($segments[1])) {
-                updateInventoryItem($pdo, $segments[1], $input);
-            }
-            break;
-    }
+// Función para actualizar estado de orden
+function updateOrderStatus($pdo, $orderId, $status) {
+    $stmt = $pdo->prepare("UPDATE orders SET status = ? WHERE order_id = ?");
+    $stmt->execute([$status, $orderId]);
+    
+    echo json_encode(['success' => true, 'message' => 'Estado de orden actualizado']);
 }
-// Listar todos los ingredientes agrupados por categoría
-function getAllInventory($pdo) {
-    try {
-        $stmt = $pdo->query("
-            SELECT * FROM inventory 
-            ORDER BY category, item_name
-        ");
-        $inventory = $stmt->fetchAll(PDO::FETCH_ASSOC);
+    //FUNCIONES PARA INICIALIZAR LA BASE DE DATOS
+// Función para inicializar base de datos
+function initDatabase($pdo) {
+    // Crear tabla de inventario si no existe
+    $pdo->exec("
+        CREATE TABLE IF NOT EXISTS inventory (
+            id INT AUTO_INCREMENT PRIMARY KEY,
+            category VARCHAR(50) NOT NULL,
+            item_key VARCHAR(50) NOT NULL,
+            name VARCHAR(100) NOT NULL,
+            quantity INT NOT NULL DEFAULT 0,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+            UNIQUE KEY unique_item (category, item_key)
+        )
+    ");
+    
+    // Crear tabla de órdenes si no existe
+    $pdo->exec("
+        CREATE TABLE IF NOT EXISTS orders (
+            id INT AUTO_INCREMENT PRIMARY KEY,
+            order_id BIGINT NOT NULL UNIQUE,
+            customer_name VARCHAR(100) NOT NULL,
+            order_type ENUM('pos', 'delivery') NOT NULL,
+            total_amount DECIMAL(10,2) NOT NULL,
+            order_items JSON NOT NULL,
+            delivery_info JSON NULL,
+            comments TEXT NULL,
+            status ENUM('pending', 'completed', 'cancelled') DEFAULT 'pending',
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+        )
+    ");
+    
+    // Insertar inventario inicial si está vacío
+    $stmt = $pdo->query("SELECT COUNT(*) FROM inventory");
+    if ($stmt->fetchColumn() == 0) {
+        $initialInventory = [
+            // Ingredientes
+            ['ingredients', 'peperoni', '🍕 Peperoni', 50],
+            ['ingredients', 'salami', '🥩 Salami', 30],
+            ['ingredients', 'jamon', '🍖 Jamón', 40],
+            ['ingredients', 'chorizo', '🌭 Chorizo', 25],
+            ['ingredients', 'tocino', '🥓 Tocino', 35],
+            ['ingredients', 'pastor', '🌮 Pastor', 20],
+            ['ingredients', 'champiñon', '🍄 Champiñón', 45],
+            ['ingredients', 'piña', '🍍 Piña', 30],
+            ['ingredients', 'chile', '🌶️ Chile', 60],
+            ['ingredients', 'cebolla', '🧅 Cebolla', 55],
+            ['ingredients', 'parmesano', '🧀 Queso Parmesano', 25],
+            
+            // Bebidas
+            ['drinks', 'coca', '🥤 Coca Cola', 100],
+            ['drinks', 'fanta', '🍊 Fanta', 80],
+            ['drinks', 'sprite', '🍋 Sprite', 75],
+            ['drinks', 'manzanita', '🍎 Manzanita', 60],
+            ['drinks', 'fresca', '🥤 Fresca', 50],
+            ['drinks', 'agua', '💧 Agua', 150],
+            ['drinks', 'horchata', '🥛 Horchata', 40],
+            ['drinks', 'jugo', '🧃 Jugo', 65],
+            
+            // Desechables
+            ['disposables', 'platos', '🍽️ Platos', 200],
+            ['disposables', 'vasos', '🥤 Vasos', 150],
+            ['disposables', 'servilletas', '🧻 Servilletas', 500],
+            ['disposables', 'cajas-pizza', '📦 Cajas de Pizza', 100],
+            ['disposables', 'bolsas', '🛍️ Bolsas', 80]
+        ];
         
-        // agrupar por categoría
-        $grouped = [];
-        foreach ($inventory as $item) {
-            $grouped[$item['category']][] = $item;
-        }
-        
-        echo json_encode($grouped);
-    } catch (PDOException $e) {
-        http_response_code(500);
-        echo json_encode(['error' => $e->getMessage()]);
-    }
-}
-// Actualizar cantidad de un ingrediente
-function updateInventoryItem($pdo, $id, $data) {
-    try {
-        $stmt = $pdo->prepare("UPDATE inventory SET quantity = ? WHERE id = ?");
-        $stmt->execute([$data['quantity'], $id]);
-        echo json_encode(['success' => true]);
-    } catch (PDOException $e) {
-        http_response_code(500);
-        echo json_encode(['error' => $e->getMessage()]);
-    }
-}
-
-/*  =========================================  //                                               
-    FUNCIONES PARA PRODURCTOS Y ESTADISTICAS
-//  =========================================  */
-function handleProducts($method, $pdo, $input, $segments) {
-    switch ($method) {
-        case 'GET':
-            getAllProducts($pdo);
-            break;
-    }
-}
-// Devuelve la lista del menú
-function getAllProducts($pdo) {
-    try {
-        $stmt = $pdo->query("SELECT * FROM products ORDER BY type, name");
-        $products = $stmt->fetchAll(PDO::FETCH_ASSOC);
-        echo json_encode($products);
-    } catch (PDOException $e) {
-        http_response_code(500);
-        echo json_encode(['error' => $e->getMessage()]);
-    }
-}
-
-// Maneja las solicitudes relacionadas con estadísticas
-function handleStats($method, $pdo) {
-    if ($method === 'GET') {
-        try {
-            // Get daily stats
-            $stmt = $pdo->query("
-                SELECT 
-                    COUNT(*) as total_orders,
-                    SUM(total_amount) as total_sales,
-                    AVG(total_amount) as avg_order_value
-                FROM orders 
-                WHERE DATE(created_at) = CURDATE()
-            ");
-            $dailyStats = $stmt->fetch(PDO::FETCH_ASSOC);
-            
-            // Obtener pedidos pendientes
-            $stmt = $pdo->query("SELECT COUNT(*) as pending_orders FROM orders WHERE status = 'pending'");
-            $pendingStats = $stmt->fetch(PDO::FETCH_ASSOC);
-            
-            // Sacar ingredientes con bajo stock
-            $stmt = $pdo->query("SELECT * FROM v_low_stock LIMIT 5");
-            $lowStock = $stmt->fetchAll(PDO::FETCH_ASSOC);
-            
-            echo json_encode([
-                'daily' => $dailyStats,
-                'pending' => $pendingStats,
-                'low_stock' => $lowStock
-            ]);
-        } catch (PDOException $e) {
-            http_response_code(500);
-            echo json_encode(['error' => $e->getMessage()]);
+        $stmt = $pdo->prepare("INSERT INTO inventory (category, item_key, name, quantity) VALUES (?, ?, ?, ?)");
+        foreach ($initialInventory as $item) {
+            $stmt->execute($item);
         }
     }
+    
+    echo json_encode(['success' => true, 'message' => 'Base de datos inicializada']);
 }
 
 ?>
