@@ -174,23 +174,13 @@
         <!-- @@@ VISTA DE PEDIDO A DOMICILIO @@@ -->
         <div id="delivery-view" class="view">
             <div class="delivery-container">
-                <div class="delivery-form">
-                    <h2>🚚 Pedido a Domicilio</h2>
-                    <div class="customer-details">
-                        <h3>Datos del Cliente</h3>
-                        <input type="text" id="delivery-name" placeholder="Nombre completo" required>
-                        <input type="tel" id="delivery-phone" placeholder="Teléfono" required>
-                        <textarea id="delivery-address" placeholder="Dirección completa" required></textarea>
-                    </div>
-                </div>
-                <!-- mismo menu (FALTA PONER LO MISMO QUE EN PUNTO DE VENTE) -->
-                <div class="menu-section">
-                    <h3>Selecciona tu pedido</h3>
-                    <p>Usa el mismo menú que en punto de venta para seleccionar tus productos</p>
-                </div>
+                <div class="delivery-redirect">
+                    <h2>🚚 Pedidos a Domicilio</h2>
+                    <p> PAra realizar pedidos a domicilio, utiliza nuestra plataforma</p>
+                    <button class="delivery-redirect-btn" onclick="window.open('./delivey.html','_blank')">Ir a Plataforma de Domicilios 🚀</button>
+                </div>""
             </div>
-        </div>
-
+        </div>    
         <!-- @@@ VISTA DEL INVENTARIO @@@ -->
         <div id="inventory-view" class="view">
             <div class="inventory-container">

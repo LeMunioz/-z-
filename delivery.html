@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" href="https://public-frontend-cos.metadl.com/mgx/img/favicon.png" type="image/png">
+    <title>Pedidos a Domicilio - Pizzería πz²α</title>
+    <link rel="stylesheet" href="./style.css">
+</head>
+
+<body>
+    <!-- ##### HEADER #### -->
+    <header class="navbar">
+        <div class="nav-container">
+            <div class="logo">
+                <h1>🍕 Pizzería πz²α - Domicilio</h1>
+            </div>
+            <nav class="nav-menu">
+                <button class="nav-btn" onclick="window.open('./index.html', '_blank')">🏪 Volver al Sistema Principal</button>
+            </nav>
+        </div>
+    </header>
+    <!-- ##### BODY #### -->
+    <main class="main-content">
+        <div class="delivery-full-view">
+            <div class="delivery-layout">
+                <!-- Sección del Menú -->
+                <div class="menu-section">
+                    <h2>🍕 Menú</h2>
+                    
+                    <!-- Seccion Pizza -->
+                    <div class="product-category">
+                        <h3>Pizzas</h3>
+                        <div class="size-selector">
+                            <button class="size-btn active" data-size="pequeña" data-multiplier="1">Pequeña (Base $100)</button>
+                            <button class="size-btn" data-size="mediana" data-multiplier="1.5">Mediana (Base $150)</button>
+                            <button class="size-btn" data-size="familiar" data-multiplier="2.2">Familiar (Base $220)</button>
+                        </div>
+                        
+                        <!-- Especialidades -->
+                        <div class="specialty-pizzas">
+                            <h4>Especialidades</h4>
+                            <div class="pizza-grid">
+                                <div class="pizza-card" data-specialty="margarita" data-price="140">
+                                    <span>🍅 Margarita</span>
+                                    <span class="price">$140</span>
+                                </div>
+                                <div class="pizza-card" data-specialty="vegetariana" data-price="160">
+                                    <span>🥬 Vegetariana</span>
+                                    <span class="price">$160</span>
+                                </div>
+                                <div class="pizza-card" data-specialty="hawaiana" data-price="170">
+                                    <span>🍍 Hawaiana</span>
+                                    <span class="price">$170</span>
+                                </div>
+                                <div class="pizza-card" data-specialty="carnes-frias" data-price="200">
+                                    <span>🥓 Carnes Frías</span>
+                                    <span class="price">$200</span>
+                                </div>
+                                <div class="pizza-card" data-specialty="mexicana" data-price="180">
+                                    <span>🌶️ Mexicana</span>
+                                    <span class="price">$180</span>
+                                </div>
+                                <div class="pizza-card" data-specialty="italiana" data-price="190">
+                                    <span>🇮🇹 Italiana</span>
+                                    <span class="price">$190</span>
+                                </div>
+                                <div class="pizza-card" data-specialty="ranchera" data-price="175">
+                                    <span>🤠 Ranchera</span>
+                                    <span class="price">$175</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Pizza personalizada -->
+                        <div class="custom-pizza">
+                            <h4>Pizza Personalizada</h4>
+                            <button class="build-pizza-btn">🛠️ Crear Pizza Personalizada</button>
+                            <div class="ingredients-panel" style="display: none;">
+                                <h5>Ingredientes</h5>
+                                <div class="ingredients-grid">
+                                    <label class="ingredient-item">
+                                        <input type="checkbox" data-ingredient="peperoni" data-price="20">
+                                        <span>🍕 Peperoni (+$20)</span>
+                                    </label>
+                                    <label class="ingredient-item">
+                                        <input type="checkbox" data-ingredient="jamon" data-price="18">
+                                        <span>🍖 Jamón (+$18)</span>
+                                    </label>
+                                    <label class="ingredient-item">
+                                        <input type="checkbox" data-ingredient="salami" data-price="22">
+                                        <span>🥩 Salami (+$22)</span>
+                                    </label>
+                                    <label class="ingredient-item">
+                                        <input type="checkbox" data-ingredient="chorizo" data-price="25">
+                                        <span>🌭 Chorizo (+$25)</span>
+                                    </label>
+                                    <label class="ingredient-item">
+                                        <input type="checkbox" data-ingredient="tocino" data-price="24">
+                                        <span>🥓 Tocino (+$24)</span>
+                                    </label>
+                                    <label class="ingredient-item">
+                                        <input type="checkbox" data-ingredient="pastor" data-price="26">
+                                        <span>🌮 Pastor (+$26)</span>
+                                    </label>
+                                    <label class="ingredient-item">
+                                        <input type="checkbox" data-ingredient="champiñon" data-price="15">
+                                        <span>🍄 Champiñón (+$15)</span>
+                                    </label>
+                                    <label class="ingredient-item">
+                                        <input type="checkbox" data-ingredient="piña" data-price="12">
+                                        <span>🍍 Piña (+$12)</span>
+                                    </label>
+                                    <label class="ingredient-item">
+                                        <input type="checkbox" data-ingredient="cebolla" data-price="10">
+                                        <span>🧅 Cebolla (+$10)</span>
+                                    </label>
+                                    <label class="ingredient-item">
+                                        <input type="checkbox" data-ingredient="chile" data-price="8">
+                                        <span>🌶️ Chile (+$8)</span>
+                                    </label>
+                                    <label class="ingredient-item">
+                                        <input type="checkbox" data-ingredient="parmesano" data-price="16">
+                                        <span>🧀 Parmesano (+$16)</span>
+                                    </label>
+                                </div>
+                                <button class="add-custom-pizza">Agregar Pizza ($<span id="custom-price">100</span>)</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Bebidas -->
+                    <div class="product-category">
+                        <h3>Bebidas</h3>
+                        <div class="drinks-grid">
+                            <div class="drink-card" data-drink="coca" data-price="28">
+                                <span>🥤 Coca Cola</span>
+                                <span class="price">$28</span>
+                            </div>
+                            <div class="drink-card" data-drink="fanta" data-price="28">
+                                <span>🍊 Fanta</span>
+                                <span class="price">$28</span>
+                            </div>
+                            <div class="drink-card" data-drink="sprite" data-price="28">
+                                <span>🍋 Sprite</span>
+                                <span class="price">$28</span>
+                            </div>
+                            <div class="drink-card" data-drink="manzanita" data-price="25">
+                                <span>🍎 Manzanita</span>
+                                <span class="price">$25</span>
+                            </div>
+                            <div class="drink-card" data-drink="fresca" data-price="25">
+                                <span>🥤 Fresca</span>
+                                <span class="price">$25</span>
+                            </div>
+                            <div class="drink-card" data-drink="agua" data-price="15">
+                                <span>💧 Agua</span>
+                                <span class="price">$15</span>
+                            </div>
+                            <div class="drink-card" data-drink="horchata" data-price="30">
+                                <span>🥛 Horchata</span>
+                                <span class="price">$30</span>
+                            </div>
+                            <div class="drink-card" data-drink="jugo" data-price="35">
+                                <span>🧃 Jugo</span>
+                                <span class="price">$35</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Sección del Carrito y Datos de Entrega -->
+                <div class="delivery-order-section">
+                    <!-- Carrito -->
+                    <div class="cart-section">
+                        <h2>🛒 Tu Pedido</h2>
+                        <div class="cart-items" id="cart-items">
+                            <p class="empty-cart">El carrito está vacío</p>
+                        </div>
+                        <div class="cart-total">
+                            <h3>Total: $<span id="cart-total">0</span></h3>
+                        </div>
+                    </div>
+
+                    <!-- Datos de Entrega -->
+                    <div class="delivery-info-section">
+                        <h2>📍 Datos de Entrega</h2>
+                        <div class="delivery-form">
+                            <input type="text" id="delivery-name" placeholder="Nombre completo" required>
+                            <input type="tel" id="delivery-phone" placeholder="Teléfono" required>
+                            <input type="text" id="delivery-colonia" placeholder="Colonia" required>
+                            <input type="text" id="delivery-calle" placeholder="Calle y número" required>
+                            <textarea id="delivery-comments" placeholder="Comentarios adicionales (opcional)" rows="3"></textarea>
+                            <button class="place-order-btn" id="place-delivery-order">🏠🚚 Realizar Pedido a Domicilio </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script src="./script.js"></script>
+    <script>
+        // Configurar la app para modo delivery
+        // Esto es para que el sistema reconozca que está en la vista de delivery
+        document.addEventListener('DOMContentLoaded', () => { // Esperar a que el DOM esté cargado
+            if (typeof app !== 'undefined') {
+                app.currentView = 'delivery'; 
+                app.isDeliveryPage = true; 
+            }
+        });
+    </script>
+</body>
+
+</html>
