@@ -9,13 +9,14 @@ class PizzeriaApp {
         this.currentView = 'pos';
         this.orders = [];
         this.inventory = this.initializeInventory();
+        this.isDeliveryPage = false; // Para identificar si estamos en delivery.html
         
         this.init();
     }
 
     init() {
         this.setupEventListeners();
-        this.loadInventory();
+        this.loadInventoryFromDB();
         this.loadOrders();
         this.updateCartDisplay();
     }
@@ -36,10 +37,14 @@ class PizzeriaApp {
                 'parmesano': { name: '🧀 Queso Parmesano', quantity: 25 }
             },
             drinks: {
-                'refresco': { name: '🥤 Refresco', quantity: 100 },
+                'coca': { name: '🥤 Coca Cola', quantity: 100 },
+                'fanta': { name: '🍊 Fanta', quantity: 80 },
+                'sprite': { name: '🍋 Sprite', quantity: 75 },
+                'manzanita': { name: '🍎 Manzanita', quantity: 60 },
+                'fresca': { name: '🥤 Fresca', quantity: 50 },
                 'agua': { name: '💧 Agua', quantity: 150 },
-                'horchata': { name: '🥛 Horchata', quantity: 50 },
-                'jugo': { name: '🧃 Jugo', quantity: 75 }
+                'horchata': { name: '🥛 Horchata', quantity: 40 },
+                'jugo': { name: '🧃 Jugo', quantity: 65 }
             },
             disposables: {
                 'platos': { name: '🍽️ Platos', quantity: 200 },
@@ -53,12 +58,14 @@ class PizzeriaApp {
 
     
     setupEventListeners() {
-        // NAVEGACION ENTRE VISTAS
-        document.querySelectorAll('.nav-btn').forEach(btn => {
-            btn.addEventListener('click', (e) => {
-                this.switchView(e.target.dataset.view);
+        // NAVEGACION ENTRE VISTAS (solo si no estamos en delivery.html)
+        if (!this.isDeliveryPage) {
+            document.querySelectorAll('.nav-btn').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    this.switchView(e.target.dataset.view);
+                });
             });
-        });
+        }
     /*
     FUNCIONES PARA MANEJAR LAS ORDENES Y EL CARRITO
     */
@@ -81,9 +88,12 @@ class PizzeriaApp {
             });
         });
         // Boton armar pizza personalizada -> punto de venta
-        document.querySelector('.build-pizza-btn').addEventListener('click', () => {
-            this.toggleCustomPizzaPanel();
-        });
+        const buildPizzaBtn = document.querySelector('.build-pizza-btn');
+        if (buildPizzaBtn) {
+            buildPizzaBtn.addEventListener('click', () => {
+                this.toggleCustomPizzaPanel();
+            });
+        }
 
         // checkboxes ingredientes pizza personalizada -> punto de venta
         document.querySelectorAll('.ingredient-item input').forEach(checkbox => {
@@ -93,18 +103,30 @@ class PizzeriaApp {
         });
 
         // Agregar pizza personalizada al carrito -> punto de venta
-        document.querySelector('.add-custom-pizza').addEventListener('click', () => {
-            this.addCustomPizza();
-        });
+        const addCustomBtn = document.querySelector('.add-custom-pizza');
+        if (addCustomBtn) {
+            addCustomBtn.addEventListener('click', () => {
+                this.addCustomPizza();
+            });
+        }
 
-        // Poner orden -> punto de venta y domicilio
-        document.getElementById('place-order').addEventListener('click', () => {
-            this.placeOrder();
-        });
+        // Poner orden -> punto de venta
+        const placeOrderBtn = document.getElementById('place-order');
+        if (placeOrderBtn) {
+            placeOrderBtn.addEventListener('click', () => {
+                this.placeOrder();
+            });
+        }
 
-        // Configurar vista domicilio
-        this.setupDeliveryView();
+        // Poner orden -> delivery
+        const placeDeliveryOrderBtn = document.getElementById('place-delivery-order');
+        if (placeDeliveryOrderBtn) {
+            placeDeliveryOrderBtn.addEventListener('click', () => {
+                this.placeDeliveryOrder();
+            });
+        }
     }
+
     // seleccionar tamaño de pizza
     selectSize(sizeBtn) {
         document.querySelectorAll('.size-btn').forEach(btn => {
@@ -117,6 +139,7 @@ class PizzeriaApp {
         
         this.updateCustomPizzaPrice();
     }
+
      // mostrar/ocultar panel pizza personalizada
     toggleCustomPizzaPanel() {
         const panel = document.querySelector('.ingredients-panel');
@@ -136,32 +159,47 @@ class PizzeriaApp {
         document.querySelectorAll('.nav-btn').forEach(btn => {
             btn.classList.remove('active');
         });
-        document.querySelector(`[data-view="${viewName}"]`).classList.add('active');
+        const targetBtn = document.querySelector(`[data-view="${viewName}"]`);
+        if (targetBtn) {
+            targetBtn.classList.add('active');
+        }
 
         // cambiar vista activa
         document.querySelectorAll('.view').forEach(view => {
             view.classList.remove('active');
         });
-        document.getElementById(`${viewName}-view`).classList.add('active');
+        const targetView = document.getElementById(`${viewName}-view`);
+        if (targetView) {
+            targetView.classList.add('active');
+        }
 
         this.currentView = viewName;
 
         // cargar datos específicos de la vista (la vista de inventario y la cola del comandero)
         if (viewName === 'inventory') {
-            this.loadInventory();
+            this.loadInventoryFromDB();
         } else if (viewName === 'orders') {
             this.loadOrders();
         }
     }
 
-    // actualizar precio pizza personalizada
+    // actualizar precio pizza personalizada con nuevo sistema
     updateCustomPizzaPrice() {
-        const basePrice = 150; // Base pizza price
+        const basePrice = 100; // Nueva base de pizza
         const checkedIngredients = document.querySelectorAll('.ingredient-item input:checked');
-        const ingredientsPrice = checkedIngredients.length * 15;
+        let ingredientsPrice = 0;
+        
+        // Sumar precios individuales de cada ingrediente
+        checkedIngredients.forEach(input => {
+            ingredientsPrice += parseInt(input.dataset.price);
+        });
+        
         const totalPrice = Math.round((basePrice + ingredientsPrice) * this.currentMultiplier);
         
-        document.getElementById('custom-price').textContent = totalPrice;
+        const priceElement = document.getElementById('custom-price');
+        if (priceElement) {
+            priceElement.textContent = totalPrice;
+        }
     }
 
     /*
@@ -186,6 +224,7 @@ class PizzeriaApp {
         this.updateCartDisplay();
         this.showSuccessMessage(`Pizza ${specialty} agregada al carrito`);
     }
+
     // agregar bebida al carrito
     addDrink(drinkCard) {
         const drink = drinkCard.dataset.drink;
@@ -203,20 +242,23 @@ class PizzeriaApp {
         this.updateCartDisplay();
         this.showSuccessMessage(`${item.name} agregada al carrito`);
     }
+
     // agregar pizza personalizada al carrito
     addCustomPizza() {
         const checkedIngredients = document.querySelectorAll('.ingredient-item input:checked');
-        const ingredients = Array.from(checkedIngredients).map(input => 
-            input.parentElement.querySelector('span').textContent
-        );
+        const ingredients = Array.from(checkedIngredients).map(input => ({
+            name: input.parentElement.querySelector('span').textContent,
+            key: input.dataset.ingredient,
+            price: parseInt(input.dataset.price)
+        }));
         
         if (ingredients.length === 0) {
             this.showErrorMessage('Selecciona al menos un ingrediente');
             return;
         }
         
-        const basePrice = 150;
-        const ingredientsPrice = ingredients.length * 15;
+        const basePrice = 100;
+        const ingredientsPrice = ingredients.reduce((sum, ing) => sum + ing.price, 0);
         const totalPrice = Math.round((basePrice + ingredientsPrice) * this.currentMultiplier);
         
         const item = {
@@ -238,10 +280,13 @@ class PizzeriaApp {
         
         this.showSuccessMessage('Pizza personalizada agregada al carrito');
     }
+
     // actualizar visual del carrito
     updateCartDisplay() {
         const cartItems = document.getElementById('cart-items');
         const cartTotal = document.getElementById('cart-total');
+        
+        if (!cartItems || !cartTotal) return;
         
         if (this.cart.length === 0) {
             cartItems.innerHTML = '<p class="empty-cart">El carrito está vacío</p>';
@@ -253,7 +298,7 @@ class PizzeriaApp {
             <div class="cart-item">
                 <div class="cart-item-info">
                     <div class="cart-item-name">${item.name}</div>
-                    ${item.ingredients ? `<div class="cart-item-details">Ingredientes: ${item.ingredients.join(', ')}</div>` : ''}
+                    ${item.ingredients ? `<div class="cart-item-details">Ingredientes: ${item.ingredients.map(ing => ing.name).join(', ')}</div>` : ''}
                 </div>
                 <div class="cart-item-price">$${item.price}</div>
                 <button class="remove-item" onclick="app.removeFromCart(${item.id})">✕</button>
@@ -263,14 +308,18 @@ class PizzeriaApp {
         const total = this.cart.reduce((sum, item) => sum + item.price, 0);
         cartTotal.textContent = total;
     }
+
     // quitar item del carrito
     removeFromCart(itemId) {
         this.cart = this.cart.filter(item => item.id !== itemId);
         this.updateCartDisplay();
     }
-    // poner orden -> punto de venta y domicilio
+
+    // poner orden -> punto de venta
     placeOrder() {
         const customerName = document.getElementById('customer-name').value.trim();
+        const orderComments = document.getElementById('order-comments') ? document.getElementById('order-comments').value.trim() : '';
+        
         //obligar a poner nombre
         if (!customerName) {
             this.showErrorMessage('Por favor ingresa el nombre del cliente');
@@ -281,6 +330,7 @@ class PizzeriaApp {
             this.showErrorMessage('El carrito está vacío');
             return;
         }
+
         // crear objeto orden con la hora actual y los items del carrito
         const order = {
             id: Date.now(),
@@ -288,61 +338,150 @@ class PizzeriaApp {
             items: [...this.cart],
             total: this.cart.reduce((sum, item) => sum + item.price, 0),
             timestamp: new Date(),
-            type: this.currentView === 'delivery' ? 'delivery' : 'pos',
-            status: 'pending'
+            type: 'pos',
+            status: 'pending',
+            comments: orderComments
         };
-        
-        // agregar info de entrega si es a domicilio
-        if (this.currentView === 'delivery') {
-            const phone = document.getElementById('delivery-phone').value.trim();
-            const address = document.getElementById('delivery-address').value.trim();
-            
-            if (!phone || !address) {
-                this.showErrorMessage('Por favor completa todos los datos de entrega');
-                return;
-            }
-            order.deliveryInfo = {
-                phone: phone,
-                address: address
-            };
-        }
         
         this.orders.push(order);
         this.saveOrders();
+        this.updateInventoryAfterOrder(order);
         
         // limpiar carrito y formulario
         this.cart = [];
         this.updateCartDisplay();
         document.getElementById('customer-name').value = '';
-        
-        if (this.currentView === 'delivery') {
-            document.getElementById('delivery-name').value = '';
-            document.getElementById('delivery-phone').value = '';
-            document.getElementById('delivery-address').value = '';
+        if (document.getElementById('order-comments')) {
+            document.getElementById('order-comments').value = '';
         }
         
         this.showSuccessMessage(`Pedido #${order.id} realizado exitosamente`);
-        
-        // actualizar vista de órdenes si está activa
-        this.updateInventoryAfterOrder(order);
     }
 
-    /*
-    FUNCIONES PARA MANEJAR LA VISTA DE DOMICILIO
-    */
-    setupDeliveryView() {
-        // transferir nombre cliente a formulario domicilio [punto de venta -> pedido domicilio]
-        const customerNameInput = document.getElementById('customer-name');
-        const deliveryNameInput = document.getElementById('delivery-name');
+    // poner orden -> delivery
+    placeDeliveryOrder() {
+        const customerName = document.getElementById('delivery-name').value.trim();
+        const phone = document.getElementById('delivery-phone').value.trim();
+        const colonia = document.getElementById('delivery-colonia').value.trim();
+        const calle = document.getElementById('delivery-calle').value.trim();
+        const comments = document.getElementById('delivery-comments').value.trim();
         
-        if (customerNameInput && deliveryNameInput) {
-            customerNameInput.addEventListener('input', () => {
-                if (this.currentView === 'delivery') {
-                    deliveryNameInput.value = customerNameInput.value;
+        // Validaciones
+        if (!customerName || !phone || !colonia || !calle) {
+            this.showErrorMessage('Por favor completa todos los datos requeridos');
+            return;
+        }
+        
+        if (this.cart.length === 0) {
+            this.showErrorMessage('El carrito está vacío');
+            return;
+        }
+
+        // crear objeto orden
+        const order = {
+            id: Date.now(),
+            customer: customerName,
+            items: [...this.cart],
+            total: this.cart.reduce((sum, item) => sum + item.price, 0),
+            timestamp: new Date(),
+            type: 'delivery',
+            status: 'pending',
+            deliveryInfo: {
+                phone: phone,
+                colonia: colonia,
+                calle: calle
+            },
+            comments: comments
+        };
+        
+        this.orders.push(order);
+        this.saveOrdersToDB(order);
+        this.updateInventoryAfterOrder(order);
+        
+        // limpiar carrito y formulario
+        this.cart = [];
+        this.updateCartDisplay();
+        document.getElementById('delivery-name').value = '';
+        document.getElementById('delivery-phone').value = '';
+        document.getElementById('delivery-colonia').value = '';
+        document.getElementById('delivery-calle').value = '';
+        document.getElementById('delivery-comments').value = '';
+        
+        this.showSuccessMessage(`Pedido a domicilio #${order.id} realizado exitosamente`);
+    }
+
+    // cargar inventario desde base de datos
+    async loadInventoryFromDB() {
+        try {
+            const response = await fetch('./api.php?action=get_inventory');
+            if (response.ok) {
+                const data = await response.json();
+                if (data.success) {
+                    this.inventory = data.inventory;
+                    this.loadInventory();
                 }
-            });
+            }
+        } catch (error) {
+            console.log('Error cargando inventario desde BD, usando datos locales');
+            this.loadInventoryFromStorage();
+            this.loadInventory();
         }
     }
+
+    // guardar inventario en base de datos
+    async saveInventoryToDB() {
+        try {
+            const response = await fetch('./api.php', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    action: 'update_inventory',
+                    inventory: this.inventory
+                })
+            });
+            
+            if (response.ok) {
+                const data = await response.json();
+                if (!data.success) {
+                    console.error('Error guardando inventario:', data.message);
+                }
+            }
+        } catch (error) {
+            console.error('Error conectando con la base de datos:', error);
+            // Fallback a localStorage
+            this.saveInventory();
+        }
+    }
+
+    // guardar orden en base de datos
+    async saveOrdersToDB(order) {
+        try {
+            const response = await fetch('./api.php', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    action: 'save_order',
+                    order: order
+                })
+            });
+            
+            if (response.ok) {
+                const data = await response.json();
+                if (!data.success) {
+                    console.error('Error guardando orden:', data.message);
+                }
+            }
+        } catch (error) {
+            console.error('Error conectando con la base de datos:', error);
+            // Fallback a localStorage
+            this.saveOrders();
+        }
+    }
+
     // cargar inventario
     loadInventory() {
         this.displayInventorySection('ingredients', 'ingredients-inventory');
@@ -372,38 +511,43 @@ class PizzeriaApp {
             `;
         }).join('');
     }
+
     // actualizar inventario
     updateInventory(section, item, change) {
         const currentQuantity = this.inventory[section][item].quantity;
         const newQuantity = Math.max(0, currentQuantity + change);
         
         this.inventory[section][item].quantity = newQuantity;
-        this.saveInventory();
+        this.saveInventoryToDB();
         this.loadInventory();
         
         if (newQuantity <= 5) {
             this.showErrorMessage(`⚠️ Stock bajo: ${this.inventory[section][item].name} (${newQuantity} restantes)`);
         }
     }
+
     // actualizar inventario despues de una orden
     updateInventoryAfterOrder(order) {
         order.items.forEach(item => { // para cada item en la orden
             if (item.type === 'pizza') {
-                // Reduce pizza ingredienets
+                // Reduce pizza ingredientes
                 if (item.ingredients) { // pizza personalizada
                     item.ingredients.forEach(ingredient => {
-                        const ingredientKey = this.findIngredientKey(ingredient);
+                        const ingredientKey = ingredient.key;
                         if (ingredientKey && this.inventory.ingredients[ingredientKey]) { // verificar si existe el ingrediente
                             this.inventory.ingredients[ingredientKey].quantity = Math.max(0, 
                                 this.inventory.ingredients[ingredientKey].quantity - 1); // quitar 1 unidad por ingrediente
                         }
                     });
+                } else if (item.specialty) {
+                    // Reducir ingredientes de especialidades
+                    this.reduceSpecialtyIngredients(item.specialty);
                 }
                 // Reduce cajas
                 this.inventory.disposables['cajas-pizza'].quantity = Math.max(0, 
                     this.inventory.disposables['cajas-pizza'].quantity - 1);
             } else if (item.type === 'drink') {
-                // Reduce chescos
+                // Reduce bebidas
                 const drinkKey = item.drink;
                 if (this.inventory.drinks[drinkKey]) {
                     this.inventory.drinks[drinkKey].quantity = Math.max(0, 
@@ -415,16 +559,28 @@ class PizzeriaApp {
             }
         });
         
-        this.saveInventory();
+        this.saveInventoryToDB();
     }
-    // encontrar clave del ingrediente en el inventario (se usa en updateInventoryAfterOrder)
-    findIngredientKey(ingredientName) {
-        for (const [key, value] of Object.entries(this.inventory.ingredients)) {
-            if (value.name.includes(ingredientName.replace(/[🍕🥩🍖🌭🥓🌮🍄🍍🌶️🧅🧀]/g, '').trim())) {
-                return key;
+
+    // reducir ingredientes de especialidades
+    reduceSpecialtyIngredients(specialty) {
+        const specialtyIngredients = {
+            'margarita': ['parmesano'],
+            'vegetariana': ['champiñon', 'cebolla', 'chile'],
+            'hawaiana': ['jamon', 'piña'],
+            'carnes-frias': ['jamon', 'salami', 'tocino'],
+            'mexicana': ['chorizo', 'chile', 'cebolla'],
+            'italiana': ['salami', 'parmesano'],
+            'ranchera': ['tocino', 'cebolla', 'chile']
+        };
+
+        const ingredients = specialtyIngredients[specialty] || [];
+        ingredients.forEach(ingredientKey => {
+            if (this.inventory.ingredients[ingredientKey]) {
+                this.inventory.ingredients[ingredientKey].quantity = Math.max(0,
+                    this.inventory.ingredients[ingredientKey].quantity - 1);
             }
-        }
-        return null;
+        });
     }
     
     /*
@@ -446,6 +602,7 @@ class PizzeriaApp {
         deliveryOrders.innerHTML = deliveryOrdersList.length ? deliveryOrdersList.map(order => this.createOrderCard(order)).join('') : 
             '<p class="empty-cart">No hay pedidos a domicilio pendientes</p>';
     }
+
     // crear tarjeta de orden -> cola del comandero
     createOrderCard(order) {
         return `
@@ -458,9 +615,11 @@ class PizzeriaApp {
                 ${order.deliveryInfo ? `
                     <div class="order-delivery">
                         <div>📞 ${order.deliveryInfo.phone}</div>
-                        <div>📍 ${order.deliveryInfo.address}</div>
+                        <div>🏘️ ${order.deliveryInfo.colonia}</div>
+                        <div>📍 ${order.deliveryInfo.calle}</div>
                     </div>
                 ` : ''}
+                ${order.comments ? `<div class="order-comments">💬 ${order.comments}</div>` : ''}
                 <div class="order-items">
                     ${order.items.map(item => `
                         <div class="order-item">
@@ -476,6 +635,7 @@ class PizzeriaApp {
             </div>
         `;
     }
+
     // completar orden -> cola del comandero
     completeOrder(orderId) {
         const orderIndex = this.orders.findIndex(order => order.id === orderId);
@@ -508,7 +668,7 @@ class PizzeriaApp {
         }, 3000);
     }
 
-    // almacenamiento local de órdenes e inventario mandar a [api.php]
+    // almacenamiento local de órdenes e inventario (fallback)
     saveOrders() {
         localStorage.setItem('pizzeria_orders', JSON.stringify(this.orders));
     }
