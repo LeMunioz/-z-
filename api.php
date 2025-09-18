@@ -23,7 +23,8 @@ header('Access-Control-Allow-Headers: Content-Type');
 /*
     #### CONFIGURACIÓN DE BASE DE DATOS Y CONEXION ####
 */
-$host = 'localhost';
+// host para publico
+$host = 'localhost'; // Cambiar si es necesario
 $dbname = 'pizzeria_db';
 $username = 'root';
 $password = '3312'; // Cambiar al implementar
