@@ -161,25 +161,26 @@ function saveOrder($pdo, $order) {
     echo json_encode(['success' => true, 'message' => 'Orden guardada']);
 }
 
-// Función para obtener órdenes
+// Función  para obtener órdenes
 function getOrders($pdo) {
     $stmt = $pdo->query("SELECT * FROM orders WHERE status = 'pending' ORDER BY created_at DESC");
     $orders = $stmt->fetchAll(PDO::FETCH_ASSOC);
     
-    // Procesar órdenes para el formato esperado
+    // Procesar órdenes para el formato esperado por JavaScript
     $processedOrders = [];
     foreach ($orders as $order) {
         $processedOrder = [
-            'id' => $order['order_id'],
+            'id' => (int)$order['order_id'], // Convertir a entero
             'customer' => $order['customer_name'],
             'type' => $order['order_type'],
             'total' => (float)$order['total_amount'],
             'items' => json_decode($order['order_items'], true),
             'status' => $order['status'],
-            'timestamp' => new DateTime($order['created_at']),
+            'timestamp' => $order['created_at'], // Mantener como string para JavaScript
             'comments' => $order['comments']
         ];
         
+        // Agregar información de delivery si existe
         if ($order['delivery_info']) {
             $processedOrder['deliveryInfo'] = json_decode($order['delivery_info'], true);
         }
