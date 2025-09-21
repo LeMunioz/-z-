@@ -17,7 +17,7 @@ class PizzeriaApp {
     init() {
         this.setupEventListeners();
         this.loadInventoryFromDB();
-        this.loadOrders();
+        this.loadOrdersFromDB(); // Cargar órdenes desde BD al inicializar
         this.updateCartDisplay();
     }
 
@@ -179,7 +179,7 @@ class PizzeriaApp {
         if (viewName === 'inventory') {
             this.loadInventoryFromDB();
         } else if (viewName === 'orders') {
-            this.loadOrders();
+            this.loadOrdersFromDB(); // Cargar desde BD en lugar de storage local
         }
     }
 
@@ -344,7 +344,7 @@ class PizzeriaApp {
         };
         
         this.orders.push(order);
-        this.saveOrders();
+        this.saveOrdersToDB(order);
         this.updateInventoryAfterOrder(order);
         
         // limpiar carrito y formulario
@@ -358,7 +358,7 @@ class PizzeriaApp {
         this.showSuccessMessage(`Pedido #${order.id} realizado exitosamente`);
     }
 
-    // poner orden -> delivery
+    // poner orden -> delivery - ARREGLO PRINCIPAL
     placeDeliveryOrder() {
         const customerName = document.getElementById('delivery-name').value.trim();
         const phone = document.getElementById('delivery-phone').value.trim();
@@ -394,7 +394,10 @@ class PizzeriaApp {
             comments: comments
         };
         
+        // ARREGLO: Agregar orden a la lista local ANTES de guardar en BD
         this.orders.push(order);
+        
+        // Guardar en base de datos
         this.saveOrdersToDB(order);
         this.updateInventoryAfterOrder(order);
         
@@ -425,6 +428,28 @@ class PizzeriaApp {
             console.log('Error cargando inventario desde BD, usando datos locales');
             this.loadInventoryFromStorage();
             this.loadInventory();
+        }
+    }
+
+    // función para cargar órdenes desde base de datos
+    async loadOrdersFromDB() {
+        try {
+            const response = await fetch('./api.php?action=get_orders');
+            if (response.ok) {
+                const data = await response.json();
+                if (data.success && data.orders) {
+                    // Convertir timestamps de string a Date objects
+                    this.orders = data.orders.map(order => ({
+                        ...order,
+                        timestamp: new Date(order.timestamp)
+                    }));
+                    this.loadOrders(); // Actualizar la vista
+                }
+            }
+        } catch (error) {
+            console.log('Error cargando órdenes desde BD, usando datos locales');
+            this.loadOrdersFromStorage();
+            this.loadOrders();
         }
     }
 
@@ -637,13 +662,39 @@ class PizzeriaApp {
     }
 
     // completar orden -> cola del comandero
-    completeOrder(orderId) {
+    async completeOrder(orderId) {
         const orderIndex = this.orders.findIndex(order => order.id === orderId);
         if (orderIndex !== -1) {
             this.orders[orderIndex].status = 'completed';
-            this.saveOrders();
-            this.loadOrders();
-            this.showSuccessMessage(`Pedido #${orderId} completado`);
+            
+            // Actualizar estado en base de datos
+            try {
+                const response = await fetch('./api.php', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        action: 'update_order_status',
+                        order_id: orderId,
+                        status: 'completed'
+                    })
+                });
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    if (data.success) {
+                        this.loadOrders();
+                        this.showSuccessMessage(`Pedido #${orderId} completado`);
+                    }
+                }
+            } catch (error) {
+                console.error('Error actualizando estado de orden:', error);
+                // Fallback a localStorage
+                this.saveOrders();
+                this.loadOrders();
+                this.showSuccessMessage(`Pedido #${orderId} completado`);
+            }
         }
     }
 
@@ -703,5 +754,5 @@ document.addEventListener('DOMContentLoaded', () => {
     app.loadOrdersFromStorage();
     app.loadInventoryFromStorage();
     app.loadInventory();
-    app.loadOrders();
+    app.loadOrdersFromDB(); // Cargar órdenes desde BD al cargar la página
 });

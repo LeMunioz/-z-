@@ -1,4 +1,4 @@
-/* Estilos principales para la Pizzería πz²α */
+/* Estilos principales para la Pizzería πz²α - Paleta Azul, Verde y Naranja */
 
 * {
     margin: 0;
@@ -8,9 +8,9 @@
 
 body {
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: linear-gradient(135deg, #1e3c72 0%, #2a5298 50%, #3498db 100%);
     min-height: 100vh;
-    color: #333;
+    color: #2c3e50;
 }
 
 /*
@@ -38,7 +38,7 @@ body {
 }
 
 .logo h1 {
-    color: #e74c3c;
+    color: #e67e22;
     font-size: 1.8rem;
     font-weight: bold;
 }
@@ -49,7 +49,7 @@ body {
 }
 
 .nav-btn {
-    background: linear-gradient(45deg, #ff6b6b, #ee5a24);
+    background: linear-gradient(45deg, #3498db, #2980b9);
     color: white;
     border: none;
     padding: 0.8rem 1.5rem;
@@ -57,16 +57,18 @@ body {
     cursor: pointer;
     font-weight: 600;
     transition: all 0.3s ease;
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+    box-shadow: 0 4px 15px rgba(52, 152, 219, 0.3);
 }
 
 .nav-btn:hover {
     transform: translateY(-2px);
-    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
+    box-shadow: 0 6px 20px rgba(52, 152, 219, 0.4);
+    background: linear-gradient(45deg, #2980b9, #1f4e79);
 }
 
 .nav-btn.active {
-    background: linear-gradient(45deg, #2ecc71, #27ae60);
+    background: linear-gradient(45deg, #27ae60, #229954);
+    box-shadow: 0 4px 15px rgba(39, 174, 96, 0.3);
 }
 
 /* Contenido Principal */
@@ -123,10 +125,10 @@ body {
 }
 
 .product-category h3 {
-    color: #e74c3c;
+    color: #e67e22;
     margin-bottom: 1.5rem;
     font-size: 1.5rem;
-    border-bottom: 2px solid #e74c3c;
+    border-bottom: 2px solid #e67e22;
     padding-bottom: 0.5rem;
 }
 
@@ -139,7 +141,7 @@ body {
 }
 
 .size-btn {
-    background: linear-gradient(45deg, #74b9ff, #0984e3);
+    background: linear-gradient(45deg, #3498db, #2980b9);
     color: white;
     border: none;
     padding: 0.8rem 1.5rem;
@@ -147,16 +149,17 @@ body {
     cursor: pointer;
     font-weight: 600;
     transition: all 0.3s ease;
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 4px 15px rgba(52, 152, 219, 0.2);
 }
 
 .size-btn:hover {
     transform: translateY(-2px);
-    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.2);
+    box-shadow: 0 6px 20px rgba(52, 152, 219, 0.3);
 }
 
 .size-btn.active {
-    background: linear-gradient(45deg, #00b894, #00a085);
+    background: linear-gradient(45deg, #27ae60, #229954);
+    box-shadow: 0 4px 15px rgba(39, 174, 96, 0.3);
 }
 
 /* Especialidades de Pizza */
@@ -177,25 +180,28 @@ body {
 }
 
 .pizza-card {
-    background: linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%);
+    background: linear-gradient(135deg, #f39c12 0%, #e67e22 100%);
     border-radius: 15px;
     padding: 1.5rem;
     cursor: pointer;
     transition: all 0.3s ease;
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 4px 15px rgba(243, 156, 18, 0.2);
     display: flex;
     justify-content: space-between;
     align-items: center;
+    color: white;
+    font-weight: 600;
 }
 
 .pizza-card:hover {
     transform: translateY(-5px);
-    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
+    box-shadow: 0 8px 25px rgba(243, 156, 18, 0.3);
+    background: linear-gradient(135deg, #e67e22 0%, #d35400 100%);
 }
 
 .pizza-card .price {
     font-weight: bold;
-    color: #e74c3c;
+    color: white;
     font-size: 1.1rem;
 }
 
@@ -211,7 +217,7 @@ body {
 }
 
 .build-pizza-btn {
-    background: linear-gradient(45deg, #fd79a8, #e84393);
+    background: linear-gradient(45deg, #e67e22, #d35400);
     color: white;
     border: none;
     padding: 1rem 2rem;
@@ -220,13 +226,13 @@ body {
     font-weight: 600;
     font-size: 1rem;
     transition: all 0.3s ease;
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 4px 15px rgba(230, 126, 34, 0.3);
     width: 100%;
 }
 
 .build-pizza-btn:hover {
     transform: translateY(-2px);
-    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.2);
+    box-shadow: 0 6px 20px rgba(230, 126, 34, 0.4);
 }
 
 .ingredients-panel {
@@ -234,7 +240,7 @@ body {
     background: rgba(255, 255, 255, 0.8);
     border-radius: 15px;
     padding: 1.5rem;
-    border: 2px solid #ddd;
+    border: 2px solid #3498db;
 }
 
 .ingredients-panel h5 {
@@ -256,13 +262,13 @@ body {
     gap: 0.5rem;
     padding: 0.5rem;
     border-radius: 8px;
-    background: rgba(255, 255, 255, 0.7);
+    background: rgba(52, 152, 219, 0.1);
     cursor: pointer;
     transition: all 0.3s ease;
 }
 
 .ingredient-item:hover {
-    background: rgba(116, 185, 255, 0.2);
+    background: rgba(52, 152, 219, 0.2);
 }
 
 .ingredient-item input[type="checkbox"] {
@@ -272,7 +278,7 @@ body {
 }
 
 .add-custom-pizza {
-    background: linear-gradient(45deg, #00b894, #00a085);
+    background: linear-gradient(45deg, #27ae60, #229954);
     color: white;
     border: none;
     padding: 1rem 2rem;
@@ -281,13 +287,13 @@ body {
     font-weight: 600;
     font-size: 1rem;
     transition: all 0.3s ease;
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 4px 15px rgba(39, 174, 96, 0.3);
     width: 100%;
 }
 
 .add-custom-pizza:hover {
     transform: translateY(-2px);
-    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.2);
+    box-shadow: 0 6px 20px rgba(39, 174, 96, 0.4);
 }
 
 /* Bebidas */
@@ -298,27 +304,30 @@ body {
 }
 
 .drink-card {
-    background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%);
+    background: linear-gradient(135deg, #3498db 0%, #2980b9 100%);
     border-radius: 15px;
     padding: 1.5rem;
     cursor: pointer;
     transition: all 0.3s ease;
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 4px 15px rgba(52, 152, 219, 0.2);
     display: flex;
     flex-direction: column;
     align-items: center;
     text-align: center;
     gap: 0.5rem;
+    color: white;
+    font-weight: 600;
 }
 
 .drink-card:hover {
     transform: translateY(-5px);
-    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
+    box-shadow: 0 8px 25px rgba(52, 152, 219, 0.3);
+    background: linear-gradient(135deg, #2980b9 0%, #1f4e79 100%);
 }
 
 .drink-card .price {
     font-weight: bold;
-    color: #e74c3c;
+    color: white;
     font-size: 1.1rem;
 }
 
@@ -352,9 +361,9 @@ body {
     align-items: center;
     padding: 1rem;
     margin-bottom: 0.5rem;
-    background: rgba(116, 185, 255, 0.1);
+    background: rgba(52, 152, 219, 0.1);
     border-radius: 10px;
-    border-left: 4px solid #74b9ff;
+    border-left: 4px solid #3498db;
 }
 
 .cart-item-info {
@@ -374,7 +383,7 @@ body {
 
 .cart-item-price {
     font-weight: bold;
-    color: #e74c3c;
+    color: #e67e22;
     margin-right: 1rem;
 }
 
@@ -403,7 +412,7 @@ body {
 }
 
 .cart-total {
-    border-top: 2px solid #ddd;
+    border-top: 2px solid #3498db;
     padding-top: 1rem;
     margin-bottom: 1.5rem;
 }
@@ -424,7 +433,7 @@ body {
 .customer-info input,
 .customer-info textarea {
     padding: 1rem;
-    border: 2px solid #ddd;
+    border: 2px solid #3498db;
     border-radius: 10px;
     font-size: 1rem;
     transition: all 0.3s ease;
@@ -434,12 +443,12 @@ body {
 .customer-info input:focus,
 .customer-info textarea:focus {
     outline: none;
-    border-color: #74b9ff;
-    box-shadow: 0 0 10px rgba(116, 185, 255, 0.3);
+    border-color: #27ae60;
+    box-shadow: 0 0 10px rgba(39, 174, 96, 0.3);
 }
 
 .place-order-btn {
-    background: linear-gradient(45deg, #00b894, #00a085);
+    background: linear-gradient(45deg, #27ae60, #229954);
     color: white;
     border: none;
     padding: 1.2rem 2rem;
@@ -448,12 +457,12 @@ body {
     font-weight: 600;
     font-size: 1.1rem;
     transition: all 0.3s ease;
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 4px 15px rgba(39, 174, 96, 0.3);
 }
 
 .place-order-btn:hover {
     transform: translateY(-2px);
-    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.2);
+    box-shadow: 0 6px 20px rgba(39, 174, 96, 0.4);
 }
 
 /* ##### VISTA DE delivery ##### */
@@ -479,7 +488,7 @@ body {
 }
 
 .delivery-redirect-btn {
-    background: linear-gradient(45deg, #fd79a8, #e84393);
+    background: linear-gradient(45deg, #e67e22, #d35400);
     color: white;
     border: none;
     padding: 1.5rem 3rem;
@@ -488,12 +497,12 @@ body {
     font-weight: 600;
     font-size: 1.2rem;
     transition: all 0.3s ease;
-    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.2);
+    box-shadow: 0 6px 20px rgba(230, 126, 34, 0.3);
 }
 
 .delivery-redirect-btn:hover {
     transform: translateY(-3px);
-    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
+    box-shadow: 0 8px 25px rgba(230, 126, 34, 0.4);
 }
 
 /* ###### ESTILOS DE ENVIO PARA LLEVAR ###### */
@@ -536,7 +545,7 @@ body {
 .delivery-form input,
 .delivery-form textarea {
     padding: 1rem;
-    border: 2px solid #ddd;
+    border: 2px solid #3498db;
     border-radius: 10px;
     font-size: 1rem;
     transition: all 0.3s ease;
@@ -546,8 +555,8 @@ body {
 .delivery-form input:focus,
 .delivery-form textarea:focus {
     outline: none;
-    border-color: #74b9ff;
-    box-shadow: 0 0 10px rgba(116, 185, 255, 0.3);
+    border-color: #27ae60;
+    box-shadow: 0 0 10px rgba(39, 174, 96, 0.3);
 }
 
 /* ###### VISTA DEL INVENTARIO ###### */
@@ -573,10 +582,10 @@ body {
 }
 
 .inventory-section h3 {
-    color: #e74c3c;
+    color: #e67e22;
     margin-bottom: 1rem;
     font-size: 1.3rem;
-    border-bottom: 2px solid #e74c3c;
+    border-bottom: 2px solid #e67e22;
     padding-bottom: 0.5rem;
 }
 
@@ -587,23 +596,24 @@ body {
 }
 
 .inventory-item {
-    background: linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%);
+    background: linear-gradient(135deg, #f39c12 0%, #e67e22 100%);
     border-radius: 15px;
     padding: 1.5rem;
     display: flex;
     justify-content: space-between;
     align-items: center;
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 4px 15px rgba(243, 156, 18, 0.2);
+    color: white;
 }
 
 .inventory-item-name {
     font-weight: 600;
-    color: #2c3e50;
+    color: white;
 }
 
 .inventory-quantity {
     font-weight: bold;
-    color: #e74c3c;
+    color: white;
     font-size: 1.2rem;
     margin: 0 1rem;
 }
@@ -614,7 +624,7 @@ body {
 }
 
 .quantity-btn {
-    background: #74b9ff;
+    background: #3498db;
     color: white;
     border: none;
     border-radius: 50%;
@@ -627,7 +637,7 @@ body {
 }
 
 .quantity-btn:hover {
-    background: #0984e3;
+    background: #2980b9;
     transform: scale(1.1);
 }
 
@@ -654,11 +664,11 @@ body {
 }
 
 .orders-column h3 {
-    color: #e74c3c;
+    color: #e67e22;
     margin-bottom: 1rem;
     font-size: 1.3rem;
     text-align: center;
-    border-bottom: 2px solid #e74c3c;
+    border-bottom: 2px solid #e67e22;
     padding-bottom: 0.5rem;
 }
 
@@ -668,11 +678,12 @@ body {
 }
 
 .order-card {
-    background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%);
+    background: linear-gradient(135deg, #3498db 0%, #2980b9 100%);
     border-radius: 15px;
     padding: 1.5rem;
     margin-bottom: 1rem;
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 4px 15px rgba(52, 152, 219, 0.2);
+    color: white;
 }
 
 .order-header {
@@ -684,22 +695,22 @@ body {
 }
 
 .order-id {
-    color: #2c3e50;
+    color: white;
 }
 
 .order-time {
-    color: #636e72;
+    color: rgba(255, 255, 255, 0.8);
     font-size: 0.9rem;
 }
 
 .order-customer {
-    color: #2c3e50;
+    color: white;
     font-weight: 600;
     margin-bottom: 0.5rem;
 }
 
 .order-delivery {
-    background: rgba(255, 255, 255, 0.7);
+    background: rgba(255, 255, 255, 0.2);
     border-radius: 8px;
     padding: 0.8rem;
     margin-bottom: 1rem;
@@ -707,16 +718,16 @@ body {
 }
 
 .order-comments {
-    background: rgba(116, 185, 255, 0.2);
+    background: rgba(39, 174, 96, 0.3);
     border-radius: 8px;
     padding: 0.8rem;
     margin-bottom: 1rem;
     font-style: italic;
-    color: #2c3e50;
+    color: white;
 }
 
 .order-items {
-    background: rgba(255, 255, 255, 0.7);
+    background: rgba(255, 255, 255, 0.2);
     border-radius: 8px;
     padding: 1rem;
     margin-bottom: 1rem;
@@ -727,7 +738,7 @@ body {
     justify-content: space-between;
     align-items: center;
     padding: 0.3rem 0;
-    border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.2);
 }
 
 .order-item:last-child {
@@ -736,14 +747,14 @@ body {
 
 .order-total {
     font-weight: bold;
-    color: #e74c3c;
+    color: #f39c12;
     font-size: 1.1rem;
     text-align: center;
     margin-bottom: 1rem;
 }
 
 .complete-order-btn {
-    background: linear-gradient(45deg, #00b894, #00a085);
+    background: linear-gradient(45deg, #27ae60, #229954);
     color: white;
     border: none;
     padding: 0.8rem 1.5rem;
@@ -751,13 +762,13 @@ body {
     cursor: pointer;
     font-weight: 600;
     transition: all 0.3s ease;
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 4px 15px rgba(39, 174, 96, 0.3);
     width: 100%;
 }
 
 .complete-order-btn:hover {
     transform: translateY(-2px);
-    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.2);
+    box-shadow: 0 6px 20px rgba(39, 174, 96, 0.4);
 }
 
 /* Mensajes */
@@ -775,7 +786,7 @@ body {
 }
 
 .success-message {
-    background: linear-gradient(45deg, #00b894, #00a085);
+    background: linear-gradient(45deg, #27ae60, #229954);
 }
 
 .error-message {
